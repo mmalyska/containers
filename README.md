@@ -2,10 +2,6 @@
 
 Welcome to container images, if looking for a container start by [browsing the container packages](https://github.com/mmalyska?tab=packages&repo_name=containers).
 
-## Fork info
-
-This repository was forked from https://github.com/onedr0p/containers all the credits for automation goes to oryginall author.
-
 ## Tag immutability
 
 The containers built here do not use immutable tags, as least not in the more common way you have seen from [linuxserver.io](https://fleet.linuxserver.io/) or [Bitnami](https://bitnami.com/stacks/containers). 
@@ -14,10 +10,10 @@ We take do take a similar approach but instead of appending a `-ls69` or `-r420`
 
 | Container                                          | Immutable |
 |----------------------------------------------------|-----------|
-| `ghcr.io/onedr0p/sonarr:rolling`                   | ❌         |
-| `ghcr.io/onedr0p/sonarr:3.0.8.1507`                | ❌         |
-| `ghcr.io/onedr0p/sonarr:rolling@sha256:8053...`    | ✅         |
-| `ghcr.io/onedr0p/sonarr:3.0.8.1507@sha256:8053...` | ✅         |
+| `ghcr.io/mmalyska/sonarr:rolling`                   | ❌         |
+| `ghcr.io/mmalyska/sonarr:3.0.8.1507`                | ❌         |
+| `ghcr.io/mmalyska/sonarr:rolling@sha256:8053...`    | ✅         |
+| `ghcr.io/mmalyska/sonarr:3.0.8.1507@sha256:8053...` | ✅         |
 
 _If pinning an image to the sha256 digest, tools like [Renovate](https://github.com/renovatebot/renovate) support updating the container on a digest or application version change._
 
@@ -82,4 +78,4 @@ Containers here can be **deprecated** at any point, this could be for any reason
 
 ## Credits
 
-A lot of inspiration and ideas are thanks to the hard work of [hotio.dev](https://hotio.dev/) and [linuxserver.io](https://www.linuxserver.io/) contributors.
+This repository was forked from https://github.com/onedr0p/containers all the credits goes to oryginal author.

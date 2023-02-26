@@ -7,25 +7,11 @@
     ":semanticCommits",
     ":automergeDigest"
   ],
-  "platform": "github",
-  "username": "rosey-bot[bot]",
-  "repositories": ["onedr0p/containers"],
-  "onboarding": false,
-  "requireConfig": "optional",
-  "gitAuthor": "rosey-bot <98030736+rosey-bot[bot]@users.noreply.github.com>",
-  "dependencyDashboardTitle": "Renovate Dashboard 🤖",
+  "gitAuthor": "Michał Małyska <mmalyska@users.noreply.github.com>"
+  "dependencyDashboardTitle": "Renovate Dashboard",
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
   "packageRules": [
-    {
-      "description": "Auto-merge Github Actions",
-      "matchDatasources": ["github-tags"],
-      "automerge": true,
-      "automergeType": "branch",
-      "ignoreTests": true,
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchPackagePatterns": ["renovatebot/github-action"]
-    },
     {
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["digest"],
