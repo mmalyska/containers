@@ -7,7 +7,7 @@
     ":semanticCommits",
     ":automergeDigest"
   ],
-  "gitAuthor": "Michał Małyska <mmalyska@users.noreply.github.com>"
+  "gitAuthor": "Michał Małyska <mmalyska@users.noreply.github.com>",
   "dependencyDashboardTitle": "Renovate Dashboard",
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
