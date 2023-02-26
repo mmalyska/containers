@@ -1,0 +1,11 @@
+{
+  "name": "Container",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+  "features": {
+    "ghcr.io/eitsupi/devcontainer-features/go-task:1": {}
+  },
+  "remoteUser": "codespace",
+  "containerUser": "codespace"
+}
