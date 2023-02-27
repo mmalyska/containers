@@ -7,7 +7,10 @@
     ":semanticCommits",
     ":automergeDigest"
   ],
-  "gitAuthor": "Michał Małyska <mmalyska@users.noreply.github.com>",
+  "platform": "github",
+  "username": "bendo-bot[bot]",
+  "repositories": ["mmalyska/containers"],
+  "gitAuthor": "bendo-bot <999598+bendo-bot[bot]@users.noreply.github.com>",
   "dependencyDashboardTitle": "Renovate Dashboard",
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
