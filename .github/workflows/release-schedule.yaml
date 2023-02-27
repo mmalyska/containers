@@ -45,8 +45,8 @@ jobs:
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const script = require("./.github/scripts/index.js")
-            script({ context, core, github })
+            const script = require("./.github/scripts/index.js");
+            script.fetchChanges(context, core, github);
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main
