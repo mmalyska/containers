@@ -1,12 +1,14 @@
 ---
 name: "Scheduled Release"
 
+concurrency:
+  group: container-release
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
   schedule:
-    # NOTE: The longest build for an app is ~1h30m
-    # Keep this to run every 2 or more hours to prevent gremlins from spawning
-    - cron: "0 */3 * * *"
+    - cron: "0 * * * *"
 
 env:
   TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -19,14 +21,23 @@ jobs:
       matrix: ${{ steps.fetch.outputs.changes }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
 
       - name: Install tools
         run: sudo apt-get install moreutils jo
 
+      - name: Generate Token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92 # v1.8.0
+        id: generate-token
+        with:
+          app_id: "${{ secrets.BOT_APP_ID }}"
+          private_key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+
       - name: Fetch new app versions
         id: fetch
         run: ./.github/scripts/fetch.sh
+        env:
+          TOKEN: "${{ steps.generate-token.outputs.token }}"
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main
