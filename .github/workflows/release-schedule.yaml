@@ -24,9 +24,18 @@ jobs:
       - name: Install tools
         run: sudo apt-get install moreutils jo
 
+      - name: Generate Token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: "${{ secrets.BOT_APP_ID }}"
+          private_key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+
       - name: Fetch new app versions
         id: fetch
         run: ./.github/scripts/fetch.sh
+        env:
+          TOKEN: "${{ steps.generate-token.outputs.token }}"
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main
