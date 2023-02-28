@@ -8,13 +8,13 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      app:
-        description: "App (ex: radarr)"
-        default: ""
+      apps:
+        description: "Apps (ex: radarr,sonarr)"
+        default: "ALL"
         required: true
       channels:
         description: "Channels (ex: main,develop)"
-        default: "main"
+        default: "stable"
         required: true
       push:
         description: "Push"
@@ -37,24 +37,40 @@ jobs:
       - name: Install tools
         run: sudo apt-get install moreutils jo
 
-      - name: Determine images to build
-        id: determine-images
-        shell: bash
-        run: |
-          if [ "${{ inputs.app }}" = "ALL" ]; then
-            ./.github/scripts/fetch.sh all
-          else
-            output="[]"
-            IFS=',' read -a channels <<< "${{ inputs.channels }}"
-            declare -a images_array=()
-            for channel in "${channels[@]}"; do
-              image="$(jo app="${{ inputs.app }}" channel="$channel")"
-              images_array+=($image)
-            done
+      # - name: Determine images to build
+      #   id: determine-images
+      #   shell: bash
+      #   run: |
+      #     if [ "${{ inputs.app }}" = "ALL" ]; then
+      #       ./.github/scripts/fetch.sh all
+      #     else
+      #       output="[]"
+      #       IFS=',' read -a channels <<< "${{ inputs.channels }}"
+      #       declare -a images_array=()
+      #       for channel in "${channels[@]}"; do
+      #         image="$(jo app="${{ inputs.app }}" channel="$channel")"
+      #         images_array+=($image)
+      #       done
 
-            output="$(jo -a ${images_array[*]})"
-            echo "changes=${output}" >> $GITHUB_OUTPUT
-          fi
+      #       output="$(jo -a ${images_array[*]})"
+      #       echo "changes=${output}" >> $GITHUB_OUTPUT
+      #     fi
+
+      - name: Fetch new app versions
+        id: fetch
+        uses: actions/github-script@98814c53be79b1d30f795b907e553d8679345975 # v6.4.0
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const fetch = await import('${{ github.workspace }}/.github/scripts/index.mjs');
+            let apps = core.getInput['apps'];
+            let channels = core.getInput['channels'];
+            
+            if (apps == 'ALL') {
+              fetch.changes(context, github, core, all: true);
+            } else {
+              fetch.appChanges(core, apps.split(','), channels.split(',').map(e => ({ "name": e, "stable": true })));
+            }
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main
