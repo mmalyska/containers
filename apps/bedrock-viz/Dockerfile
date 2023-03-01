@@ -50,6 +50,6 @@ RUN \
     && chmod -R 775 /entrypoint.sh
 
 USER kah
-CMD ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 LABEL org.opencontainers.image.source="https://github.com/bedrock-viz/bedrock-viz"
