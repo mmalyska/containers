@@ -32,7 +32,7 @@ export const appChanges = async (core, apps, overrideChannels) => {
     if (overrideChannels) {
       channels = overrideChannels;
     } else {
-      let channelsFile = await fs.promises.readFile(`apps/"${app}"/metadata.json`);
+      let channelsFile = await fs.promises.readFile(`apps/${app}/metadata.json`);
       channels = JSON.parse(channelsFile);
     }
 
@@ -48,8 +48,8 @@ export const appChanges = async (core, apps, overrideChannels) => {
 const upstream = async (app, channel, stable) => {
   let version = '';
   try {
-    await fs.promises.access(`./apps/"${app}"/ci/latest.sh`);
-    version = await $`bash ./apps/"${app}"/ci/latest.sh "${channel}" "${stable}"`;
+    await fs.promises.access(`./apps/${app}/ci/latest.sh`);
+    version = await $`bash ./apps/${app}/ci/latest.sh "${channel}" "${stable}"`;
   } catch {
     version = 'UNKNOWN';
   }
