@@ -67,7 +67,7 @@ jobs:
             let channels = core.getInput['channels'];
             
             if (apps == 'ALL') {
-              fetchAction.changes(context, github, core, all: true);
+              fetchAction.changes(glob, context, github, core, all: true);
             } else {
               fetchAction.appChanges(core, apps.split(','), channels.split(',').map(e => ({ "name": e, "stable": true })));
             }

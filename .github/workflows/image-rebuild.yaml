@@ -69,7 +69,7 @@ jobs:
             let apps = needsObj.get-changes.outputs.addedOrModifiedImages.split(',');
             
             if (apps == 'ALL') {
-              fetchAction.changes(context, github, core, all: true);
+              fetchAction.changes(glob, context, github, core, all: true);
             } else {
               fetchAction.appChanges(core, apps);
             }

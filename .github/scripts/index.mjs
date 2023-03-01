@@ -1,9 +1,8 @@
 const fs = await import('fs'); 
-const glob = await import('@actions/glob');
-const allMetadataGlobber = await glob.create('./apps/*/metadata.json');
 
-export const changes = async (context, github, core, all = false) => {
+export const changes = async (glob, context, github, core, all = false) => {
   let changes = [];
+  let allMetadataGlobber = await glob.create('./apps/*/metadata.json');
 
   for await (const file of allMetadataGlobber.globGenerator()) {
     let {app, channels} = await fs.readJson(file);
