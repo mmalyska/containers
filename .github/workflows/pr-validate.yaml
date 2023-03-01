@@ -53,8 +53,8 @@ jobs:
         with:
           script: |
             const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
-            let needs = ${{ toJson(needs) }};
-            let apps = (needs.pr-metadata.outputs.addedOrModifiedImages || []).split(',').filter(Boolean);
+            let modifiedImages = ${{ toJson(needs.pr-metadata.outputs.addedOrModifiedImages) }};
+            let apps = modifiedImages.split(',').filter(Boolean);
 
             fetchAction.appChanges(core, apps);
 
