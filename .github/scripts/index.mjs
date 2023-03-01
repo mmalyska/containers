@@ -5,7 +5,8 @@ export const changes = async (glob, context, github, core, all = false) => {
   let allMetadataGlobber = await glob.create('./apps/*/metadata.json');
 
   for await (const file of allMetadataGlobber.globGenerator()) {
-    let {app, channels} = await fs.readJson(file);
+    let channelsFile = await fs.promises.readFile(file);
+    let {app, channels} = JSON.parse(channelsFile);
 
     for (const channel of channels) {
       let publishedVersion = await published(context, github, core, app, channel.name, channel.stable);
@@ -33,7 +34,8 @@ export const appChanges = async (core, apps, overrideChannels) => {
     if (overrideChannels) {
       channels = overrideChannels;
     } else {
-      channels = await fs.readJson(`apps/"${app}"/metadata.json`);
+      let channelsFile = await fs.promises.readFile(`apps/"${app}"/metadata.json`);
+      channels = JSON.parse(channelsFile);
     }
 
     for (const channel of channels) {
