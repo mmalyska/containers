@@ -1,5 +1,5 @@
-const fs = require('fs'); 
-const glob = require('@actions/glob');
+const fs = await import('fs'); 
+const glob = await import('@actions/glob');
 const allMetadataGlobber = await glob.create('./apps/*/metadata.json');
 
 export const changes = async (context, github, core, all = false) => {
