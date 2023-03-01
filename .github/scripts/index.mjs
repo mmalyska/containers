@@ -1,4 +1,4 @@
-const fs = await import('fs'); 
+const fs = await import('fs/promises'); 
 
 export const changes = async (glob, context, github, core, all = false) => {
   let changes = [];
@@ -25,8 +25,10 @@ export const changes = async (glob, context, github, core, all = false) => {
 
 export const appChanges = async (core, apps, overrideChannels) => {
   let changes = [];
+  console.log(apps);
 
   for await (const app of apps) {
+    console.log(app);
     let channels = [];
     if (overrideChannels) {
       channels = overrideChannels;
