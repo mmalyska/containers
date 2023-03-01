@@ -1,4 +1,4 @@
-const fs = await import('fs/promises'); 
+const fs = require("fs");
 
 export const changes = async (glob, context, github, core, all = false) => {
   let changes = [];
