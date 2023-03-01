@@ -33,7 +33,7 @@ export const appChanges = async (core, apps, overrideChannels) => {
       channels = overrideChannels;
     } else {
       let channelsFile = await fs.promises.readFile(`apps/${app}/metadata.json`);
-      channels = JSON.parse(channelsFile);
+      channels = JSON.parse(channelsFile).channels;
     }
 
     for (const channel of channels) {
