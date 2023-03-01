@@ -53,7 +53,7 @@ jobs:
         with:
           script: |
             const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
-            let needsObj = toJSON(needs);
+            let needsObj = ${{ toJSON(needs) }};
             console.log(needsObj);
             let apps = needsObj.pr-metadata.outputs.addedOrModifiedImages.split(',');
             console.log(apps);
