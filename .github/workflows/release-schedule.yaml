@@ -45,9 +45,9 @@ jobs:
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const fetch = await import('${{ github.workspace }}/.github/scripts/index.mjs');
+            const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
             
-            fetch.changes(context, github, core);
+            fetchAction.changes(context, github, core);
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main

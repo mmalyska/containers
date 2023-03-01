@@ -48,13 +48,16 @@ jobs:
       #     echo "changes=${output}" >> $GITHUB_OUTPUT
 
       - name: Fetch modified images
-        id: fetch
+        id: get-changed
         uses: actions/github-script@98814c53be79b1d30f795b907e553d8679345975 # v6.4.0
         with:
           script: |
-            const fetch = await import('${{ github.workspace }}/.github/scripts/index.mjs');
-            
-            fetch.appChanges(core, ${{ needs.pr-metadata.outputs.addedOrModifiedImages }});
+            const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
+            let needsObj = toJSON(needs);
+            console.log(needsObj);
+            let apps = needsObj.pr-metadata.outputs.addedOrModifiedImages.split(',');
+            console.log(apps);
+            fetchAction.appChanges(core, apps);
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main
