@@ -47,7 +47,7 @@ jobs:
           script: |
             const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
             
-            fetchAction.changes(context, github, core);
+            fetchAction.changes(glob, context, github, core);
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main
