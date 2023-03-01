@@ -2,7 +2,7 @@ import fs from "fs";
 
 export const changes = async (glob, context, github, core, all = false) => {
   let changes = [];
-  let allMetadataGlobber = await glob.create('./apps/*/metadata.json');
+  let allMetadataGlobber = await glob.create('apps/*/metadata.json');
 
   for await (const file of allMetadataGlobber.globGenerator()) {
     let channelsFile = await fs.promises.readFile(file);
@@ -38,6 +38,7 @@ export const appChanges = async (core, apps, overrideChannels) => {
 
     for (const channel of channels) {
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
+      console.log(upstreamVersion);
       changes.push({"app": app, "channel": channel.name, "version": upstreamVersion});
     }
   }
@@ -48,8 +49,9 @@ export const appChanges = async (core, apps, overrideChannels) => {
 const upstream = async (app, channel, stable) => {
   let version = '';
   try {
-    await fs.promises.access(`./apps/${app}/ci/latest.sh`);
-    version = await $`bash ./apps/${app}/ci/latest.sh "${channel}" "${stable}"`;
+    await fs.promises.access(`apps/${app}/ci/latest.sh`);
+    console.log("test");
+    version = await $`bash apps/${app}/ci/latest.sh "${channel}" "${stable}"`;
   } catch {
     version = 'UNKNOWN';
   }
