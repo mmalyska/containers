@@ -1,9 +1,9 @@
 import fs from "fs";
-import execSync from "child_process";
+import { execSync } from "child_process";
 
 export const changes = async (glob, context, github, core, all = false) => {
   let changes = [];
-  let allMetadataGlobber = await glob.create('apps/*/metadata.json');
+  let allMetadataGlobber = await glob.create('./apps/*/metadata.json');
 
   for await (const file of allMetadataGlobber.globGenerator()) {
     let channelsFile = await fs.promises.readFile(file);
@@ -33,7 +33,7 @@ export const appChanges = async (core, apps, overrideChannels) => {
     if (overrideChannels) {
       channels = overrideChannels;
     } else {
-      let channelsFile = await fs.promises.readFile(`apps/${app}/metadata.json`);
+      let channelsFile = await fs.promises.readFile(`./apps/${app}/metadata.json`);
       channels = JSON.parse(channelsFile).channels;
     }
 
@@ -50,8 +50,8 @@ export const appChanges = async (core, apps, overrideChannels) => {
 const upstream = async (app, channel, stable) => {
   let version = '';
   try {
-    await fs.promises.access(`apps/${app}/ci/latest.sh`);
-    version = execSync(`bash apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
+    await fs.promises.access(`./apps/${app}/ci/latest.sh`);
+    version = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`, {shell: '/bin/bash'});
     console.log(version);
   } catch (error) {
     console.log(error);

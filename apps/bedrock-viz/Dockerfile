@@ -22,7 +22,7 @@ RUN \
     then \
         git clone --recursive --depth 1 -b "v${VERSION}" https://github.com/bedrock-viz/bedrock-viz.git .; \
     else \
-        git clone --recursive --depth 1 -b "mmalyska-patch-1" https://github.com/mmalyska/bedrock-viz.git .; \
+        git clone --recursive --depth 1 https://github.com/bedrock-viz/bedrock-viz.git .; \
     fi \
     && git apply -p0 patches/leveldb-1.22.patch \
     && git apply -p0 patches/pugixml-disable-install.patch
