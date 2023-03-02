@@ -39,7 +39,6 @@ export const appChanges = async (core, apps, overrideChannels) => {
 
     for (const channel of channels) {
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
-      console.log(upstreamVersion);
       changes.push({"app": app, "channel": channel.name, "version": upstreamVersion});
     }
   }
@@ -51,9 +50,10 @@ const upstream = async (app, channel, stable) => {
   let version = '';
   try {
     await fs.promises.access(`./apps/${app}/ci/latest.sh`);
-    version = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
-    console.log(version);
+    let result = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
+    version = result.toString();
   } catch (error) {
+    console.log(`Error finding upstream version for ${app}`);
     console.log(error);
     version = 'UNKNOWN';
   }
