@@ -36,7 +36,7 @@ FROM ghcr.io/onedr0p/alpine:rolling@sha256:6d6a07c8c747e58846bb3125d4e14bb64cdea
 
 RUN \
     apk add --no-cache \
-        # boost \
+        boost \
         libpng \
         zlib
 

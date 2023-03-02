@@ -52,6 +52,7 @@ const upstream = async (app, channel, stable) => {
   try {
     await fs.promises.access(`apps/${app}/ci/latest.sh`);
     version = execSync(`bash apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
+    console.log(version);
   } catch {
     version = 'UNKNOWN';
   }
