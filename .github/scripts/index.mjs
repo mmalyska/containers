@@ -51,7 +51,7 @@ const upstream = async (app, channel, stable) => {
   let version = '';
   try {
     await fs.promises.access(`./apps/${app}/ci/latest.sh`);
-    version = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`, {shell: '/bin/bash'});
+    version = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
     console.log(version);
   } catch (error) {
     console.log(error);
