@@ -22,7 +22,7 @@ RUN \
     then \
         git clone --recursive --depth 1 -b "v${VERSION}" https://github.com/bedrock-viz/bedrock-viz.git .; \
     else \
-        git clone --recursive --depth 1 https://github.com/bedrock-viz/bedrock-viz.git .; \
+        git clone --recursive --depth 1 -b "mmalyska-patch-1" https://github.com/mmalyska/bedrock-viz.git .; \
     fi \
     && git apply -p0 patches/leveldb-1.22.patch \
     && git apply -p0 patches/pugixml-disable-install.patch
@@ -34,22 +34,28 @@ RUN \
 
 FROM ghcr.io/onedr0p/alpine:rolling@sha256:6d6a07c8c747e58846bb3125d4e14bb64cdea6287faef647ba072740892517f1
 
-
-
 RUN \
     apk add --no-cache \
-        boost \
+        # boost \
         libpng \
         zlib
 
-COPY --from=builder /usr/local/share/bedrock-viz /usr/local/share/bedrock-viz
+COPY --from=builder --chown=kah:kah /usr/local/share/bedrock-viz /usr/local/share/bedrock-viz
 COPY --from=builder /usr/local/bin/bedrock-viz /usr/local/bin/
 COPY ./apps/bedrock-viz/entrypoint.sh /entrypoint.sh
+
+RUN \
+    mkdir -p /world \
+    && chown -R kah:kah /world \
+    && chmod -R 775 /world \
+    && mkdir -p /out \
+    && chown -R kah:kah /out \
+    && chmod -R 775 /out
+
 RUN \
     chown -R kah:kah /entrypoint.sh \
     && chmod -R 775 /entrypoint.sh
 
-USER kah
 ENTRYPOINT ["/entrypoint.sh"]
 
 LABEL org.opencontainers.image.source="https://github.com/bedrock-viz/bedrock-viz"

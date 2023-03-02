@@ -1,13 +1,15 @@
 # bedrock-viz Container
 The container is build for generating Minecraft Bedrock maps using https://github.com/bedrock-viz/bedrock-viz
 ## Usage
+### Mounts
+
+| Name       | Description                                   |
+|------------|-----------------------------------------------|
+| `/world`    | Directory containing world files              |
+| `/out`      | Directory with output map                     |
+
+
 ### Parameters
-
-| Name       | Description                                   | default   |
-|------------|-----------------------------------------------|-----------|
-| `world`    | Directory containing world files              | `nil`     |
-| `out`      | Directory with output map                     | `nil`     |
-
 To pass additional parameters to application add them to args when executing container.
 
 ### Docker run
@@ -18,5 +20,13 @@ docker run --rm -v /path/to/public_html:/out -v /path/to/world:/world dazworrall
 
 ### Docker compose
 ```yml
+services:
+  bedrock-viz:
+      image: ghcr.io/mmalyska/bedrock-viz:rolling@sha256:COMMIT_SHA
+      container_name: bedrock-viz
+      command: --html-all
+      volumes:
+        - ./jaskinia:/world:ro
+        - ./output:/out
 
 ```

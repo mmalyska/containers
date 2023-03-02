@@ -1,4 +1,5 @@
 import fs from "fs";
+import execSync from "child_process";
 
 export const changes = async (glob, context, github, core, all = false) => {
   let changes = [];
@@ -50,8 +51,7 @@ const upstream = async (app, channel, stable) => {
   let version = '';
   try {
     await fs.promises.access(`apps/${app}/ci/latest.sh`);
-    console.log("test");
-    version = await $`bash apps/${app}/ci/latest.sh "${channel}" "${stable}"`;
+    version = execSync(`bash apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
   } catch {
     version = 'UNKNOWN';
   }
