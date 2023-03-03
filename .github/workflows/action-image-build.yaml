@@ -67,8 +67,7 @@ jobs:
           chan_tests_type=$(jq --raw-output '.tests.type' <<< "${chan_config}") && \
               echo "chan_tests_type=${chan_tests_type}" >> $GITHUB_OUTPUT
 
-          chan_upstream_version=$(bash ./.github/scripts/upstream.sh "${{ matrix.image.app }}" "${{ matrix.image.channel }}") && \
-              echo "chan_upstream_version=${chan_upstream_version}" >> $GITHUB_OUTPUT
+          echo "chan_upstream_version=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
 
           if [[ "${chan_tests_enabled}" == true && "${chan_tests_type}" == "cli" ]]; then
               echo "chan_goss_args=tail -f /dev/null" >> $GITHUB_OUTPUT
@@ -187,14 +186,14 @@ jobs:
         id: build-success
         if: ${{ always() && steps.release.outcome == 'success' }}
         run: |-
-          echo "message=🎉 ${{ matrix.image.app }}-${{ matrix.image.channel }} (${{ steps.vars.outputs.chan_upstream_version }})" >> $GITHUB_OUTPUT
+          echo "message=🎉 ${{ matrix.image.app }}-${{ matrix.image.channel }} (${{ matrix.image.version }})" >> $GITHUB_OUTPUT
           echo "color=0x00FF00" >> $GITHUB_OUTPUT
 
       - name: Build failed
         id: build-failed
         if: ${{ always() && (steps.release.outcome == 'failure' || steps.dgoss.outcome == 'failure') }}
         run: |-
-          echo "message=💥 ${{ matrix.image.app }}-${{ matrix.image.channel }} (${{ steps.vars.outputs.chan_upstream_version }})" >> $GITHUB_OUTPUT
+          echo "message=💥 ${{ matrix.image.app }}-${{ matrix.image.channel }} (${{ matrix.image.version }})" >> $GITHUB_OUTPUT
           echo "color=0xFF0000" >> $GITHUB_OUTPUT
 
       - name: Send Discord Webhook
