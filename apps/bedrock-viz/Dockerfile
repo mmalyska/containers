@@ -34,6 +34,8 @@ RUN \
 
 FROM ghcr.io/onedr0p/alpine:rolling@sha256:6d6a07c8c747e58846bb3125d4e14bb64cdea6287faef647ba072740892517f1
 
+ENV BEDROCKVIZ__OPTION="--html-all"
+
 RUN \
     apk add --no-cache \
         boost \
@@ -56,6 +58,6 @@ RUN \
     chown -R kah:kah /entrypoint.sh \
     && chmod -R 775 /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/entrypoint.sh"]
 
 LABEL org.opencontainers.image.source="https://github.com/bedrock-viz/bedrock-viz"

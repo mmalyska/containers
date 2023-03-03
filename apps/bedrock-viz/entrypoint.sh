@@ -7,4 +7,5 @@ exec \
     /usr/local/bin/bedrock-viz \
     --db /tmp/world \
     --out /out \
+    ${BEDROCKVIZ__OPTION} \
     "$@"
