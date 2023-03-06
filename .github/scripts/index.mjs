@@ -66,14 +66,12 @@ const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
   console.log(github.rest.packages.getAllPackageVersionsForPackageOwnedByUser);
   try {
-    let res = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+    let { data: varsions } = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
       package_type: 'container',
       package_name: app,
       username: context.repo.owner,
     });
-    var resString = JSON.stringify(res);
-    console.log(`response ${resString}`);
-    const rollingContainer = res.find(e => e.metadata.container.tags.includes("rolling"));
+    const rollingContainer = varsions.find(e => e.metadata.container.tags.includes("rolling"));
     return rollingContainer.metadata.container.tags.find(e => e != "rolling");
   } catch (error) {
     console.log(`Error finding published version for ${app}`);
