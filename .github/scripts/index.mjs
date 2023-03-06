@@ -15,11 +15,11 @@ export const changes = async (glob, context, github, core, all = false) => {
       let change = {"app": app, "channel": channel.name, "version": upstreamVersion};
       if (all) {
         changes.push(change);
-        console.log(`Pushed changes ${JSON.parse(change)}`);
+        console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}`);
       }
       else if (publishedVersion != upstreamVersion.stdout) {
         changes.push(change);
-        console.log(`Pushed changes ${JSON.parse(change)}`);
+        console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}`);
       }
     }
   }
@@ -42,7 +42,7 @@ export const appChanges = async (core, apps, overrideChannels) => {
     for (const channel of channels) {
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
       let change = {"app": app, "channel": channel.name, "version": upstreamVersion};
-      console.log(`Pushed changes ${JSON.parse(change)}`);
+      console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}`);
       changes.push(change);
     }
   }
@@ -69,8 +69,8 @@ const published = async (context, github, core, app, channel, stable) => {
       package_type: 'container',
       package_name: app,
       username: context.repo.owner,
-    });
-    console.log(`response ${res}`);
+    }) | {};
+    console.log(`response ${JSON.stringify(res)}`);
     const rollingContainer = res.find(e => e.metadata.container.tags.includes("rolling"));
     return rollingContainer.metadata.container.tags.find(e => e != "rolling");
   } catch (error) {
