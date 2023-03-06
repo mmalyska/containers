@@ -66,7 +66,7 @@ const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
   console.log(github.rest.packages.getAllPackageVersionsForPackageOwnedByUser);
   try {
-    let res = github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+    let res = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
       package_type: 'container',
       package_name: app,
       username: context.repo.owner,
