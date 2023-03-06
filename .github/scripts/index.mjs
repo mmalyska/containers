@@ -12,12 +12,14 @@ export const changes = async (glob, context, github, core, all = false) => {
     for (const channel of channels) {
       let publishedVersion = await published(context, github, core, app, channel.name, channel.stable);
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
-
+      let change = {"app": app, "channel": channel.name, "version": upstreamVersion};
       if (all) {
-        changes.push({"app": app, "channel": channel.name, "version": upstreamVersion});
+        changes.push(change);
+        console.log(`Pushed changes ${change}`);
       }
       else if (publishedVersion != upstreamVersion.stdout) {
-        changes.push({"app": app, "channel": channel.name, "version": upstreamVersion});
+        changes.push(change);
+        console.log(`Pushed changes ${change}`);
       }
     }
   }
@@ -39,7 +41,9 @@ export const appChanges = async (core, apps, overrideChannels) => {
 
     for (const channel of channels) {
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
-      changes.push({"app": app, "channel": channel.name, "version": upstreamVersion});
+      let change = {"app": app, "channel": channel.name, "version": upstreamVersion};
+      console.log(`Pushed changes ${change}`);
+      changes.push(change);
     }
   }
 
@@ -47,17 +51,15 @@ export const appChanges = async (core, apps, overrideChannels) => {
 };
 
 const upstream = async (app, channel, stable) => {
-  let version = '';
   try {
     await fs.promises.access(`./apps/${app}/ci/latest.sh`);
     let result = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
-    version = result.toString();
+    return result.toString();
   } catch (error) {
     console.log(`Error finding upstream version for ${app}`);
     console.log(error);
-    version = 'UNKNOWN';
+    return 'UNKNOWN';
   }
-  return version;
 };
 
 const published = async (context, github, core, app, channel, stable) => {
@@ -70,8 +72,9 @@ const published = async (context, github, core, app, channel, stable) => {
     });
     const rollingContainer = res.find(e => e.metadata.container.tags.includes("rolling"));
     return rollingContainer.metadata.container.tags.find(e => e != "rolling");
-  } catch {
+  } catch (error) {
     console.log(`Error finding published version for ${app}`);
+    console.log(error);
     return 'NOT FOUND';
   }
 };

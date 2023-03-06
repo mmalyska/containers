@@ -61,40 +61,41 @@ jobs:
           chan_stable=$(jq --raw-output '.stable' <<< "${chan_config}")
 
           chan_platforms=$(jq --raw-output '.platforms | join(",")' <<< "${chan_config}") && \
-              echo "chan_platforms=${chan_platforms}" >> $GITHUB_OUTPUT
+            echo "chan_platforms=${chan_platforms}" >> $GITHUB_OUTPUT
           chan_tests_enabled=$(jq --raw-output '.tests.enabled' <<< "${chan_config}") && \
-              echo "chan_tests_enabled=${chan_tests_enabled}" >> $GITHUB_OUTPUT
+            echo "chan_tests_enabled=${chan_tests_enabled}" >> $GITHUB_OUTPUT
           chan_tests_type=$(jq --raw-output '.tests.type' <<< "${chan_config}") && \
-              echo "chan_tests_type=${chan_tests_type}" >> $GITHUB_OUTPUT
+            echo "chan_tests_type=${chan_tests_type}" >> $GITHUB_OUTPUT
 
-          echo "chan_upstream_version=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
+          chan_upstream_version="${{ matrix.image.version }}" && \
+            echo "chan_upstream_version=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
 
           if [[ "${chan_tests_enabled}" == true && "${chan_tests_type}" == "cli" ]]; then
-              echo "chan_goss_args=tail -f /dev/null" >> $GITHUB_OUTPUT
+            echo "chan_goss_args=tail -f /dev/null" >> $GITHUB_OUTPUT
           fi
 
           if [[ "${container_base}" == true ]]; then
-              echo "chan_label_type=org.opencontainers.image.base" >> $GITHUB_OUTPUT
+            echo "chan_label_type=org.opencontainers.image.base" >> $GITHUB_OUTPUT
           else
-              echo "chan_label_type=org.opencontainers.image" >> $GITHUB_OUTPUT
+            echo "chan_label_type=org.opencontainers.image" >> $GITHUB_OUTPUT
           fi
 
           if test -f "./apps/${{ matrix.image.app }}/${{ matrix.image.channel }}/Dockerfile"; then
-              echo "chan_dockerfile=./apps/${{ matrix.image.app }}/${{ matrix.image.channel }}/Dockerfile" >> $GITHUB_OUTPUT
-              echo "chan_goss_config=./apps/${{ matrix.image.app }}/${{ matrix.image.channel }}/goss.yaml" >> $GITHUB_OUTPUT
+            echo "chan_dockerfile=./apps/${{ matrix.image.app }}/${{ matrix.image.channel }}/Dockerfile" >> $GITHUB_OUTPUT
+            echo "chan_goss_config=./apps/${{ matrix.image.app }}/${{ matrix.image.channel }}/goss.yaml" >> $GITHUB_OUTPUT
           else
-              echo "chan_dockerfile=./apps/${{ matrix.image.app }}/Dockerfile" >> $GITHUB_OUTPUT
-              echo "chan_goss_config=./apps/${{ matrix.image.app }}/ci/goss.yaml" >> $GITHUB_OUTPUT
+            echo "chan_dockerfile=./apps/${{ matrix.image.app }}/Dockerfile" >> $GITHUB_OUTPUT
+            echo "chan_goss_config=./apps/${{ matrix.image.app }}/ci/goss.yaml" >> $GITHUB_OUTPUT
           fi
 
           if [[ "${chan_stable}" == true ]]; then
-              echo "chan_tag_testing=${{ matrix.image.app }}:testingz" >> $GITHUB_OUTPUT
-              echo "chan_tag_rolling=${{ matrix.image.app }}:rolling" >> $GITHUB_OUTPUT
-              echo "chan_tag_version=${{ matrix.image.app }}:${chan_upstream_version}" >> $GITHUB_OUTPUT
+            echo "chan_tag_testing=${{ matrix.image.app }}:testingz" >> $GITHUB_OUTPUT
+            echo "chan_tag_rolling=${{ matrix.image.app }}:rolling" >> $GITHUB_OUTPUT
+            echo "chan_tag_version=${{ matrix.image.app }}:${chan_upstream_version}" >> $GITHUB_OUTPUT
           else
-              echo "chan_tag_testing=${{ matrix.image.app }}-${{ matrix.image.channel }}:testingz" >> $GITHUB_OUTPUT
-              echo "chan_tag_rolling=${{ matrix.image.app }}-${{ matrix.image.channel }}:rolling" >> $GITHUB_OUTPUT
-              echo "chan_tag_version=${{ matrix.image.app }}-${{ matrix.image.channel }}:${chan_upstream_version}" >> $GITHUB_OUTPUT
+            echo "chan_tag_testing=${{ matrix.image.app }}-${{ matrix.image.channel }}:testingz" >> $GITHUB_OUTPUT
+            echo "chan_tag_rolling=${{ matrix.image.app }}-${{ matrix.image.channel }}:rolling" >> $GITHUB_OUTPUT
+            echo "chan_tag_version=${{ matrix.image.app }}-${{ matrix.image.channel }}:${chan_upstream_version}" >> $GITHUB_OUTPUT
           fi
 
       - name: Setup Tools
