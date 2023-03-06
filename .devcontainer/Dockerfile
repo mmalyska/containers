@@ -8,7 +8,7 @@ RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # Pre install brew packages
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" \
-    && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" >> /home/codepace/.profile \
+    && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" >> /home/codespace/.profile \
     && brew analytics off
 
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
