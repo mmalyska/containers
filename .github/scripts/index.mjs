@@ -15,11 +15,11 @@ export const changes = async (glob, context, github, core, all = false) => {
       let change = {"app": app, "channel": channel.name, "version": upstreamVersion};
       if (all) {
         changes.push(change);
-        console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}`);
+        console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}, "published": ${publishedVersion}`);
       }
       else if (publishedVersion != upstreamVersion.stdout) {
         changes.push(change);
-        console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}`);
+        console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}, "published": ${publishedVersion}`);
       }
     }
   }
@@ -70,9 +70,10 @@ const published = async (context, github, core, app, channel, stable) => {
       package_name: app,
       username: context.repo.owner,
     });
-    console.log(JSON.stringify(versions));
     const rollingContainer = versions.find(e => e.metadata.container.tags.includes("rolling"));
-    return rollingContainer.metadata.container.tags.find(e => e != "rolling");
+    let foundVersion = rollingContainer.metadata.container.tags.find(e => e != "rolling");
+    console.log(foundVersion);
+    return foundVersion;
   } catch (error) {
     console.log(`Error finding published version for ${app}`);
     console.log(error);
