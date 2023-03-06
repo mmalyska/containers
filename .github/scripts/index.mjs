@@ -65,12 +65,11 @@ const upstream = async (app, channel, stable) => {
 const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
   try {
-    let res = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+    let res = github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
       package_type: 'container',
       package_name: app,
       username: context.repo.owner,
-    }) | {};
-    console.log(`response ${JSON.stringify(res)}`);
+    });
     const rollingContainer = res.find(e => e.metadata.container.tags.includes("rolling"));
     return rollingContainer.metadata.container.tags.find(e => e != "rolling");
   } catch (error) {
