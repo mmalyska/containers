@@ -71,7 +71,8 @@ const published = async (context, github, core, app, channel, stable) => {
       package_name: app,
       username: context.repo.owner,
     });
-    console.log(`response ${res}`);
+    var resString = JSON.stringify(res);
+    console.log(`response ${resString}`);
     const rollingContainer = res.find(e => e.metadata.container.tags.includes("rolling"));
     return rollingContainer.metadata.container.tags.find(e => e != "rolling");
   } catch (error) {
