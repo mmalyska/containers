@@ -7,12 +7,15 @@ export const changes = async (glob, context, github, core, all = false) => {
 
   for await (const file of allMetadataGlobber.globGenerator()) {
     let channelsFile = await fs.promises.readFile(file);
-    let {app, channels} = JSON.parse(channelsFile);
+    let { app, channels } = JSON.parse(channelsFile);
 
     for (const channel of channels) {
       let publishedVersion = await published(context, github, core, app, channel.name, channel.stable);
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
-      let change = {"app": app, "channel": channel.name, "version": upstreamVersion};
+      let change = { "app": app, "channel": channel.name, "version": upstreamVersion };
+      if (!upstreamVersion || !publishedVersion ) {
+        continue;
+      }
       if (all) {
         changes.push(change);
         console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}, "published": ${publishedVersion}`);
@@ -41,7 +44,10 @@ export const appChanges = async (core, apps, overrideChannels) => {
 
     for (const channel of channels) {
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
-      let change = {"app": app, "channel": channel.name, "version": upstreamVersion};
+      if (!upstreamVersion) {
+        continue;
+      }
+      let change = { "app": app, "channel": channel.name, "version": upstreamVersion };
       console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}`);
       changes.push(change);
     }
@@ -58,7 +64,6 @@ const upstream = async (app, channel, stable) => {
   } catch (error) {
     console.log(`Error finding upstream version for ${app}`);
     console.log(error);
-    return 'UNKNOWN';
   }
 };
 
@@ -75,6 +80,5 @@ const published = async (context, github, core, app, channel, stable) => {
   } catch (error) {
     console.log(`Error finding published version for ${app}`);
     console.log(error);
-    return 'NOT FOUND';
   }
 };
