@@ -67,9 +67,6 @@ jobs:
           chan_tests_type=$(jq --raw-output '.tests.type' <<< "${chan_config}") && \
             echo "chan_tests_type=${chan_tests_type}" >> $GITHUB_OUTPUT
 
-          chan_upstream_version="${{ matrix.image.version }}" && \
-            echo "chan_upstream_version=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
-
           if [[ "${chan_tests_enabled}" == true && "${chan_tests_type}" == "cli" ]]; then
             echo "chan_goss_args=tail -f /dev/null" >> $GITHUB_OUTPUT
           fi
@@ -91,11 +88,11 @@ jobs:
           if [[ "${chan_stable}" == true ]]; then
             echo "chan_tag_testing=${{ matrix.image.app }}:testingz" >> $GITHUB_OUTPUT
             echo "chan_tag_rolling=${{ matrix.image.app }}:rolling" >> $GITHUB_OUTPUT
-            echo "chan_tag_version=${{ matrix.image.app }}:${chan_upstream_version}" >> $GITHUB_OUTPUT
+            echo "chan_tag_version=${{ matrix.image.app }}:${{ matrix.image.version }}" >> $GITHUB_OUTPUT
           else
             echo "chan_tag_testing=${{ matrix.image.app }}-${{ matrix.image.channel }}:testingz" >> $GITHUB_OUTPUT
             echo "chan_tag_rolling=${{ matrix.image.app }}-${{ matrix.image.channel }}:rolling" >> $GITHUB_OUTPUT
-            echo "chan_tag_version=${{ matrix.image.app }}-${{ matrix.image.channel }}:${chan_upstream_version}" >> $GITHUB_OUTPUT
+            echo "chan_tag_version=${{ matrix.image.app }}-${{ matrix.image.channel }}:${{ matrix.image.version }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Setup Tools
@@ -134,7 +131,7 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
         with:
           build-args: |-
-            VERSION=${{ steps.vars.outputs.chan_upstream_version }}
+            VERSION=${{ matrix.image.version }}
             CHANNEL=${{ matrix.image.channel }}
           context: .
           platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
@@ -162,12 +159,12 @@ jobs:
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
         with:
           build-args: |-
-            VERSION=${{ steps.vars.outputs.chan_upstream_version }}
+            VERSION=${{ matrix.image.version }}
             CHANNEL=${{ matrix.image.channel }}
           labels: |-
             ${{ steps.vars.outputs.chan_label_type }}.created="${{ steps.vars.outputs.chan_build_date }}"
             ${{ steps.vars.outputs.chan_label_type }}.title="${{ matrix.image.app }} (${{ matrix.image.channel }})"
-            ${{ steps.vars.outputs.chan_label_type }}.version="${{ steps.vars.outputs.chan_upstream_version }}"
+            ${{ steps.vars.outputs.chan_label_type }}.version="${{ matrix.image.version }}"
             ${{ steps.vars.outputs.chan_label_type }}.authors="Michał Małyska"
             ${{ steps.vars.outputs.chan_label_type }}.url="https://github.com/mmalyska/containers/apps/${{ matrix.image.app }}"
             ${{ steps.vars.outputs.chan_label_type }}.build.url="https://github.com/mmalyska/containers/actions/runs/${{ github.run_id }}"
