@@ -4,6 +4,7 @@
   "channels": [
     {
       "name": "stable",
+      "description": "Image containing bedrock-viz application for creating a map of minecraft world.",
       "platforms": [
         "linux/amd64",
         "linux/arm64"

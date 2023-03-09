@@ -59,7 +59,8 @@ jobs:
 
           chan_config=$(jq --arg chan "${{ matrix.image.channel }}" '(.channels | .[] | select(.name == $chan))' ./apps/${{ matrix.image.app }}/metadata.json)
           chan_stable=$(jq --raw-output '.stable' <<< "${chan_config}")
-
+          chan_description=$(jq --raw-output '.description' <<< "${chan_config}") && \
+            echo "chan_description=${chan_description}" >> $GITHUB_OUTPUT
           chan_platforms=$(jq --raw-output '.platforms | join(",")' <<< "${chan_config}") && \
             echo "chan_platforms=${chan_platforms}" >> $GITHUB_OUTPUT
           chan_tests_enabled=$(jq --raw-output '.tests.enabled' <<< "${chan_config}") && \
@@ -166,9 +167,10 @@ jobs:
             ${{ steps.vars.outputs.chan_label_type }}.title="${{ matrix.image.app }} (${{ matrix.image.channel }})"
             ${{ steps.vars.outputs.chan_label_type }}.version="${{ matrix.image.version }}"
             ${{ steps.vars.outputs.chan_label_type }}.authors="Michał Małyska"
+            ${{ steps.vars.outputs.chan_label_type }}.description="${{ steps.vars.outputs.chan_description }}"
             ${{ steps.vars.outputs.chan_label_type }}.url="https://github.com/mmalyska/containers/apps/${{ matrix.image.app }}"
             ${{ steps.vars.outputs.chan_label_type }}.build.url="https://github.com/mmalyska/containers/actions/runs/${{ github.run_id }}"
-            ${{ steps.vars.outputs.chan_label_type }}.documentation="https://github.com/mmalyska/containers/apps/${{ matrix.image.app }}/README.md"
+            ${{ steps.vars.outputs.chan_label_type }}.documentation="https://github.com/mmalyska/containers/blob/main/apps/${{ matrix.image.app }}/README.md"
             ${{ steps.vars.outputs.chan_label_type }}.revision="${{ github.sha }}"
           context: .
           platforms: ${{ steps.vars.outputs.chan_platforms }}
