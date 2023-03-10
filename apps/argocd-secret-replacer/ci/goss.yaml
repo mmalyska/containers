@@ -1,0 +1,11 @@
+---
+# https://github.com/aelsabbahy/goss/blob/master/docs/manual.md#file
+file:
+  /usr/bin/argocd-secret-replacer:
+    exists: true
+  /usr/bin/sops:
+    exists: true
+  /usr/bin/kustomize:
+    exists: true
+  /usr/bin/helm:
+    exists: true

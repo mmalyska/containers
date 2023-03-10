@@ -6,6 +6,7 @@
 
 #Channels: {
 	name: #NonEmptyString
+	description: #NonEmptyString
 	platforms: [...#AcceptedPlatforms]
 	stable: bool
 	tests: {
