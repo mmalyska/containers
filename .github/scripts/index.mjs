@@ -13,7 +13,7 @@ export const changes = async (glob, context, github, core, all = false) => {
       let publishedVersion = await published(context, github, core, app, channel.name, channel.stable);
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
       let change = { "app": app, "channel": channel.name, "version": upstreamVersion };
-      if (!upstreamVersion || !publishedVersion ) {
+      if (!upstreamVersion) {
         continue;
       }
       if (all) {
