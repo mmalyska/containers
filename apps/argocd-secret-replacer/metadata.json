@@ -1,0 +1,19 @@
+{
+  "app": "argocd-secret-replacer",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Image containing argocd-secret-replacer application for replacing keys with values from secret provider ex. SOPS.",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}
