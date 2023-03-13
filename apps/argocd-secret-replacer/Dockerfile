@@ -60,6 +60,4 @@ RUN . /envfile && \
     mv argocd-secret-replacer /usr/bin/argocd-secret-replacer && \
     chmod +x /usr/bin/argocd-secret-replacer
 
-RUN echo ${VERSION}
-
 WORKDIR /apps
