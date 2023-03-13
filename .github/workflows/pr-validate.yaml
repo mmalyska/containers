@@ -20,7 +20,7 @@ jobs:
     needs: ["pr-metadata"]
     outputs:
       matrix: ${{ steps.get-changed.outputs.changes }}
-    if: ${{ needs.pr-metadata.outputs.addedOrModifiedImages }} != '[]'
+    if: ${{ needs.pr-metadata.outputs.addedOrModifiedImages != '[]' && needs.pr-metadata.outputs.addedOrModifiedImages != '' }}
     steps:
       - name: Install tools
         run: sudo apt-get install moreutils jo
@@ -30,30 +30,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Fetch modified images
-      #   id: get-changed
-      #   shell: bash
-      #   run: |
-      #     declare -a changes_array=()
-      #     while read -r app
-      #     do
-      #       while read -r channel
-      #       do
-      #         change="$(jo app="$app" channel="$channel")"
-      #         changes_array+=($change)
-      #       done < <(jq --raw-output -c '.channels[] | .name' "./apps/$app/metadata.json")
-      #     done < <(echo '${{ needs.pr-metadata.outputs.addedOrModifiedImages }}' | jq --raw-output -c '.[]')
-
-      #     output="$(jo -a ${changes_array[*]})"
-      #     echo "changes=${output}" >> $GITHUB_OUTPUT
-
       - name: Fetch modified images
         id: get-changed
         uses: actions/github-script@98814c53be79b1d30f795b907e553d8679345975 # v6.4.0
         with:
           script: |
             const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
-            let modifiedImages = ${{ needs.pr-metadata.outputs.addedOrModifiedImages || [] }};
+            let modifiedImages = ${{ needs.pr-metadata.outputs.addedOrModifiedImages }};
             let apps = modifiedImages.filter(Boolean);
 
             await fetchAction.appChanges(core, apps);
