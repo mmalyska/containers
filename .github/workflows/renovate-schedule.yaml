@@ -48,5 +48,6 @@ jobs:
       - name: Renovate
         uses: renovatebot/github-action@aa150c86873c3e1326734d9c1390064fbc646148 # v36.0.0
         with:
+          renovate-version: 35.0.0 # renovate: datasource=docker depName=renovate packageName=renovate/renovate
           configurationFile: "${{ env.RENOVATE_CONFIG_FILE }}"
           token: "${{ steps.generate-token.outputs.token }}"
