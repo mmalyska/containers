@@ -20,7 +20,7 @@ export const changes = async (glob, context, github, core, all = false) => {
         changes.push(change);
         console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}, "published": ${publishedVersion}`);
       }
-      else if (publishedVersion.notFound || publishedVersion.version != upstreamVersion) {
+      else if (!publishedVersion.found || publishedVersion.version != upstreamVersion) {
         changes.push(change);
         console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}, "published": ${publishedVersion}`);
       }
@@ -69,24 +69,22 @@ const upstream = async (app, channel, stable) => {
 
 const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
-  try {
-    let response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
-      package_type: 'container',
-      package_name: app,
-      username: context.repo.owner,
-    });
-    console.log(response);
-    let { data: versions, status: responseCode } = response;
-    if (responseCode == 404) {
-      return { notFound: true, version: '-1' };
-    }
+  let response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+    package_type: 'container',
+    package_name: app,
+    username: context.repo.owner,
+  });
+  if (response.status === 200) {
+    let { data: versions } = response;
     const rollingContainer = versions.find(e => e.metadata.container.tags.includes("rolling"));
     if (rollingContainer == null) {
-      return { notFound: true, version: '-1' };
+      return { found: false, version: '-1' };
     }
-    return { notFound: false, version: rollingContainer.metadata.container.tags.find(e => e != "rolling") };
-  } catch (error) {
+    return { found: true, version: rollingContainer.metadata.container.tags.find(e => e != "rolling") };
+  } else if (response.status === 404) {
+    return { found: false, version: '-1' };
+  } else {
     console.log(`Error finding published version for ${app}`);
-    console.log(error);
+    console.log(response.response);
   }
 };
