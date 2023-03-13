@@ -13,14 +13,14 @@ export const changes = async (glob, context, github, core, all = false) => {
       let publishedVersion = await published(context, github, core, app, channel.name, channel.stable);
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
       let change = { "app": app, "channel": channel.name, "version": upstreamVersion };
-      if (upstreamVersion == null) {
+      if (upstreamVersion == null || publishedVersion == null) {
         continue;
       }
       if (all) {
         changes.push(change);
         console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}, "published": ${publishedVersion}`);
       }
-      else if (publishedVersion != upstreamVersion) {
+      else if (publishedVersion.notFound || publishedVersion.version != upstreamVersion) {
         changes.push(change);
         console.log(`Pushed changes "app": ${app}, "channel": ${channel.name}, "version": ${upstreamVersion}, "published": ${publishedVersion}`);
       }
@@ -70,15 +70,19 @@ const upstream = async (app, channel, stable) => {
 const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
   try {
-    let response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+    let { data: versions, status: responseCode } = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
       package_type: 'container',
       package_name: app,
       username: context.repo.owner,
     });
-    let { data: versions } = response;
-    console.log(response);
+    if (responseCode == 404) {
+      return { notFound: true, version: '-1' };
+    }
     const rollingContainer = versions.find(e => e.metadata.container.tags.includes("rolling"));
-    return rollingContainer.metadata.container.tags.find(e => e != "rolling");
+    if (rollingContainer == null) {
+      return { notFound: true, version: '-1' };
+    }
+    return { notFound: false, version: rollingContainer.metadata.container.tags.find(e => e != "rolling") };
   } catch (error) {
     console.log(`Error finding published version for ${app}`);
     console.log(error);
