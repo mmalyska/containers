@@ -61,11 +61,7 @@ jobs:
             let modifiedImages = ${{ needs.get-changes.outputs.addedOrModifiedImages }};
             let apps = modifiedImages.filter(Boolean);
             
-            if (apps == 'ALL') {
-              await fetchAction.changes(glob, context, github, core, all: true);
-            } else {
-              await fetchAction.appChanges(core, apps);
-            }
+            await fetchAction.appChanges(core, apps);
 
   images-build:
     uses: mmalyska/containers/.github/workflows/action-image-build.yaml@main

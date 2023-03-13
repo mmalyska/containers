@@ -16,7 +16,7 @@ RUN case "${TARGETPLATFORM}" in \
     echo "export ARCH=$ARCH" > /envfile && \
     cat /envfile
 
-# install dotnet deps https://learn.microsoft.com/en-us/dotnet/core/install/linux-alpine#dependencies
+# install dotnet dependencies https://learn.microsoft.com/en-us/dotnet/core/install/linux-alpine#dependencies
 RUN apk add --no-cache \
     icu-libs krb5-libs libgcc libintl libssl1.1 libstdc++ zlib
 
