@@ -69,22 +69,23 @@ const upstream = async (app, channel, stable) => {
 
 const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
-  let response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
-    package_type: 'container',
-    package_name: app,
-    username: context.repo.owner,
-  });
-  if (response.status === 200) {
-    let { data: versions } = response;
+  try {
+    let { data: versions } = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+      package_type: 'container',
+      package_name: app,
+      username: context.repo.owner,
+    });
     const rollingContainer = versions.find(e => e.metadata.container.tags.includes("rolling"));
     if (rollingContainer == null) {
       return { found: false, version: '-1' };
     }
     return { found: true, version: rollingContainer.metadata.container.tags.find(e => e != "rolling") };
-  } else if (response.status === 404) {
-    return { found: false, version: '-1' };
-  } else {
-    console.log(`Error finding published version for ${app}`);
-    console.log(response.response);
+  } catch (error) {
+    if (error.status === 404) {
+      return { found: false, version: '-1' };
+    } else {
+      console.log(`Error finding published version for ${app}`);
+      return null;
+    }
   }
 };
