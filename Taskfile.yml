@@ -21,7 +21,7 @@ tasks:
         docker buildx build --progress=plain --load
         -t {{.APP}}:{{.CHANNEL}}
         --build-arg CHANNEL={{.CHANNEL}}
-        --build-arg VERSION=$(bash ./.github/scripts/upstream.sh "{{.APP}}" "{{.CHANNEL}}")
+        --build-arg VERSION=$(bash ./apps/{{.APP}}/ci/latest.sh "{{.APP}}" "{{.CHANNEL}}")
         {{if eq .MULTIPLATFORM "true"}}
         --platform $(jq -r '.channels[] | select(.name=="{{.CHANNEL}}").platforms | join(",")' ./apps/{{.APP}}/metadata.json)
         {{else}}
