@@ -1,6 +1,10 @@
 ---
 name: "Image: Rebuild"
 
+concurrency:
+  group: container-release
+  cancel-in-progress: false
+
 on:
   push:
     branches:
