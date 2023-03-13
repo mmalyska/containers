@@ -13,7 +13,7 @@ export const changes = async (glob, context, github, core, all = false) => {
       let publishedVersion = await published(context, github, core, app, channel.name, channel.stable);
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
       let change = { "app": app, "channel": channel.name, "version": upstreamVersion };
-      if (!upstreamVersion) {
+      if (upstreamVersion == null) {
         continue;
       }
       if (all) {
@@ -44,7 +44,7 @@ export const appChanges = async (core, apps, overrideChannels) => {
 
     for (const channel of channels) {
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
-      if (!upstreamVersion) {
+      if (upstreamVersion == null) {
         continue;
       }
       let change = { "app": app, "channel": channel.name, "version": upstreamVersion };
@@ -70,11 +70,13 @@ const upstream = async (app, channel, stable) => {
 const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
   try {
-    let { data: versions } = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+    let response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
       package_type: 'container',
       package_name: app,
       username: context.repo.owner,
     });
+    let { data: versions } = response;
+    console.log(response);
     const rollingContainer = versions.find(e => e.metadata.container.tags.includes("rolling"));
     return rollingContainer.metadata.container.tags.find(e => e != "rolling");
   } catch (error) {
