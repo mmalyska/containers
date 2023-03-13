@@ -60,7 +60,9 @@ const upstream = async (app, channel, stable) => {
   try {
     await fs.promises.access(`./apps/${app}/ci/latest.sh`);
     let result = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`);
-    return result.toString();
+    let res = result.toString();
+    console.log(res);
+    return res;
   } catch (error) {
     console.log(`Error finding upstream version for ${app}`);
     console.log(error);
