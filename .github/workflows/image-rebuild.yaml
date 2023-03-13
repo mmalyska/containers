@@ -64,7 +64,7 @@ jobs:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
-            let modifiedImages = '${{ toJSONneeds.get-changes.outputs.addedOrModifiedImages }}';
+            let modifiedImages = '${{ toJSON(needs.get-changes.outputs.addedOrModifiedImages) }}';
             let apps = modifiedImages.split(',').filter(Boolean);
             
             if (apps == 'ALL') {

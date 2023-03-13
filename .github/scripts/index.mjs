@@ -70,11 +70,13 @@ const upstream = async (app, channel, stable) => {
 const published = async (context, github, core, app, channel, stable) => {
   app = (stable ? app : `${app}-${channel}`);
   try {
-    let { data: versions, status: responseCode } = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
+    let response = await github.rest.packages.getAllPackageVersionsForPackageOwnedByUser({
       package_type: 'container',
       package_name: app,
       username: context.repo.owner,
     });
+    console.log(response);
+    let { data: versions, status: responseCode } = response;
     if (responseCode == 404) {
       return { notFound: true, version: '-1' };
     }
