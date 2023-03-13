@@ -68,9 +68,9 @@ jobs:
             let apps = modifiedImages.split(',').filter(Boolean);
             
             if (apps == 'ALL') {
-              fetchAction.changes(glob, context, github, core, all: true);
+              await fetchAction.changes(glob, context, github, core, all: true);
             } else {
-              fetchAction.appChanges(core, apps);
+              await fetchAction.appChanges(core, apps);
             }
 
   images-build:
