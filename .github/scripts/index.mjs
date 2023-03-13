@@ -44,8 +44,6 @@ export const appChanges = async (core, apps, overrideChannels) => {
 
     for (const channel of channels) {
       let upstreamVersion = await upstream(app, channel.name, channel.stable);
-      console.log(upstreamVersion);
-      console.log(upstreamVersion == null);
       if (upstreamVersion == null) {
         continue;
       }
@@ -68,7 +66,6 @@ const upstream = async (app, channel, stable) => {
     return result;
   } catch (error) {
     console.log(`Error finding upstream version for ${app}`);
-    console.log(error);
     return null;
   }
 };
