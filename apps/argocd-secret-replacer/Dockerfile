@@ -7,7 +7,6 @@ ARG CHANNEL
 ARG HELM_VERSION=3.11.2
 ARG KUSTOMIZE_VERSION=v4.5.7
 ARG SOPS_VERSION=v3.7.3
-ARG REPLACER_VERSION=v0.2.0
 
 RUN case "${TARGETPLATFORM}" in \
     'linux/amd64') ARCH=amd64; ;; \
@@ -49,8 +48,8 @@ RUN . /envfile && \
 # Install sops-replacer
 RUN . /envfile && \
     case "${ARCH}" in \
-    'amd64') curl -sL https://github.com/mmalyska/argocd-secret-replacer/releases/download/${REPLACER_VERSION}/secret-replacer-${REPLACER_VERSION}-linux-musl-x64.tar.gz | tar -xvz; ;; \
-    'arm64') curl -sL https://github.com/mmalyska/argocd-secret-replacer/releases/download/${REPLACER_VERSION}/secret-replacer-${REPLACER_VERSION}-linux-musl-arm64.tar.gz | tar -xvz; ;; \
+    'amd64') curl -sL https://github.com/mmalyska/argocd-secret-replacer/releases/download/${VERSION}/secret-replacer-${VERSION}-linux-musl-x64.tar.gz | tar -xvz; ;; \
+    'arm64') curl -sL https://github.com/mmalyska/argocd-secret-replacer/releases/download/${VERSION}/secret-replacer-${VERSION}-linux-musl-arm64.tar.gz | tar -xvz; ;; \
     esac && \
     mv argocd-secret-replacer /usr/bin/argocd-secret-replacer && \
     chmod +x /usr/bin/argocd-secret-replacer
