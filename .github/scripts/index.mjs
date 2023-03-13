@@ -64,6 +64,7 @@ const upstream = async (app, channel, stable) => {
   } catch (error) {
     console.log(`Error finding upstream version for ${app}`);
     console.log(error);
+    return null;
   }
 };
 
