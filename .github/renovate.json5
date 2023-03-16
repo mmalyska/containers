@@ -5,12 +5,13 @@
     ":disableRateLimiting",
     ":dependencyDashboard",
     ":semanticCommits",
-    ":automergeDigest"
+    ":automergeDigest",
+    ":gitSignOff"
   ],
   "platform": "github",
   "username": "bendo-bot[bot]",
   "repositories": ["mmalyska/containers"],
-  "gitAuthor": "bendo-bot <999598+bendo-bot[bot]@users.noreply.github.com>",
+  "gitAuthor": "rosey-bot <298713+bendo-bot[bot]@users.noreply.github.com>",
   "dependencyDashboardTitle": "Renovate Dashboard",
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
