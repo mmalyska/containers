@@ -197,7 +197,7 @@ jobs:
           echo "color=0xFF0000" >> $GITHUB_OUTPUT
 
       - name: Send Discord Webhook
-        uses: sarisia/actions-status-discord@2947ebd8725337da402c454d25063e48e754f793 # v1.11.0
+        uses: sarisia/actions-status-discord@61114b793b460ee85fe38ad3fccc78c7ead38d55 # v1.11.1
         if: ${{ always() && inputs.sendNotification == 'true' }}
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
