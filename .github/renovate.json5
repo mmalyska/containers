@@ -3,6 +3,7 @@
   "extends": [
     "github>mmalyska/renovate-config",
     "github>mmalyska/renovate-config:automerge-github-actions",
+    "github>mmalyska/renovate-config:automerge-docker-digest"
   ],
   "platform": "github",
   "username": "bendo-bot[bot]",
