@@ -1,30 +1,13 @@
 {
   "extends": [
-    "config:base",
-    "docker:enableMajor",
-    ":disableRateLimiting",
-    ":dependencyDashboard",
-    ":semanticCommits",
-    ":automergeDigest",
-    ":gitSignOff"
+    "github>mmalyska/renovate-config",
+    "github>mmalyska/renovate-config:automerge-github-actions",
   ],
   "platform": "github",
   "username": "bendo-bot[bot]",
+  "gitAuthor": "bendo-bot <298713+bendo-bot[bot]@users.noreply.github.com>",
   "repositories": ["mmalyska/containers"],
-  "gitAuthor": "rosey-bot <298713+bendo-bot[bot]@users.noreply.github.com>",
-  "dependencyDashboardTitle": "Renovate Dashboard",
-  "suppressNotifications": ["prIgnoreNotification"],
-  "commitBodyTable": true,
   "packageRules": [
-     {
-      "description": "Auto-merge Github Actions",
-      "matchDatasources": ["github-tags"],
-      "automerge": true,
-      "automergeType": "branch",
-      "ignoreTests": true,
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchPackagePatterns": ["renovatebot/github-action"]
-    },
     {
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["digest"],
