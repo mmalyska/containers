@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/alpine:latest@sha256:ff6bdca1701f3a8a67e328815ff2346b0e4067d32ec36b7992c1fdc001dc8517
+FROM public.ecr.aws/docker/library/alpine:latest@sha256:d1883c6378980e9a0f03a28b7d2380c28c266878e72acfc924546edfebdac5d4
 
 ARG TARGETPLATFORM
 ARG VERSION
