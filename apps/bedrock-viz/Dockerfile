@@ -1,4 +1,4 @@
-FROM ghcr.io/onedr0p/alpine:rolling@sha256:1a3a8f49db4be156f42e73890e6b42c453f956396e857e3278fa4edf5670e229 as builder
+FROM ghcr.io/onedr0p/alpine:rolling@sha256:e6a2407a15b7e557fb6617a592f672b004b6764887438502c047a567ec616e40 as builder
 
 ARG TARGETPLATFORM
 ARG VERSION
@@ -32,7 +32,7 @@ RUN \
     make && \
     make install
 
-FROM ghcr.io/onedr0p/alpine:rolling@sha256:1a3a8f49db4be156f42e73890e6b42c453f956396e857e3278fa4edf5670e229
+FROM ghcr.io/onedr0p/alpine:rolling@sha256:e6a2407a15b7e557fb6617a592f672b004b6764887438502c047a567ec616e40
 
 ENV BEDROCKVIZ__OPTION="--html-all"
 
