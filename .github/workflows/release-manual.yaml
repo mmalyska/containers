@@ -60,7 +60,7 @@ jobs:
               .map(e => ({ "name": e, "stable": true }));
             
             if (apps == 'ALL') {
-              await fetchAction.changes(glob, context, github, core, all: true);
+              await fetchAction.changes(glob, context, github, core, true);
             } else {
               await fetchAction.appChanges(core, apps, channels);
             }
