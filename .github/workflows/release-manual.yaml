@@ -54,11 +54,12 @@ jobs:
             let apps = core.getInput['apps']
               .split(',')
               .filter(Boolean);
+            console.log(apps);
             let channels = core.getInput['channels']
               .split(',')
               .filter(Boolean)
               .map(e => ({ "name": e, "stable": true }));
-            
+            console.log(channels);
             if (apps == 'ALL') {
               await fetchAction.changes(glob, context, github, core, true);
             } else {
