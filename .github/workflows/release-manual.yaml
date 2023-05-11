@@ -51,17 +51,14 @@ jobs:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
-            console.log(process.env['INPUT_apps']);
-            let apps = core.getInput('apps', { required: true })
+            const inputs = ${{ toJSON(inputs) }};
+            let apps = inputs.apps
               .split(',')
               .filter(Boolean);
-            console.log(apps);
-            console.log(core.getInput('channels', { required: true }));
-            let channels = core.getInput('channels', { required: true })
+            let channels = inputs.channels
               .split(',')
               .filter(Boolean)
               .map(e => ({ "name": e, "stable": true }));
-            console.log(channels);
             if (apps == 'ALL') {
               await fetchAction.changes(glob, context, github, core, true);
             } else {
