@@ -51,8 +51,7 @@ jobs:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const fetchAction = await import('${{ github.workspace }}/.github/scripts/index.mjs');
-            console.log(context);
-            console.log(core.getInput('apps', { required: true }));
+            console.log(process.env['INPUT_apps']);
             let apps = core.getInput('apps', { required: true })
               .split(',')
               .filter(Boolean);
