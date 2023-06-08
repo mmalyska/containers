@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/universal:2@sha256:4cafcfaec303b3aeacbe3cd6b2947d4115d65985bdbdfcddee612767dbce15db
+FROM mcr.microsoft.com/devcontainers/universal:2@sha256:0d4dc76d2d0a121227143b1693bf82dbe170a07c6cd35674488f84f63d281a5e
 USER codespace
 
 # [Optional] Uncomment this section to install additional OS packages.
