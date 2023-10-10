@@ -7,7 +7,7 @@ ARG CHANNEL
 # renovate: datasource=github-releases depName=helm/helm
 ARG HELM_VERSION=v3.13.0
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize
-ARG KUSTOMIZE_VERSION=v4.5.7
+ARG KUSTOMIZE_VERSION=kustomize/v4.5.7
 # renovate: datasource=github-releases depName=getsops/sops
 ARG SOPS_VERSION=v3.8.0
 
@@ -36,11 +36,11 @@ RUN apk add --update --no-cache jq yq
 
 # Install kustomize
 RUN . /envfile && \
-    curl -sLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz && \
-    tar xvzf kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz && \
+    curl -sLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION#kustomize/}/kustomize_${KUSTOMIZE_VERSION#kustomize/}_linux_${ARCH}.tar.gz && \
+    tar xvzf kustomize_${KUSTOMIZE_VERSION#kustomize/}_linux_${ARCH}.tar.gz && \
     mv kustomize /usr/bin/kustomize && \
     chmod +x /usr/bin/kustomize && \
-    rm -rf kustomize_${KUSTOMIZE_VERSION}_linux_${ARCH}.tar.gz
+    rm -rf kustomize_${KUSTOMIZE_VERSION#kustomize/}_linux_${ARCH}.tar.gz
 
 # Install jq
 RUN apk add --update --no-cache jq yq
