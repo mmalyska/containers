@@ -4,8 +4,11 @@ ARG TARGETPLATFORM
 ARG VERSION
 ARG CHANNEL
 
-ARG HELM_VERSION=3.11.2
+# renovate: datasource=github-releases depName=helm/helm
+ARG HELM_VERSION=v3.11.2
+# renovate: datasource=github-releases depName=kubernetes-sigs/kustomize
 ARG KUSTOMIZE_VERSION=v4.5.7
+# renovate: datasource=github-releases depName=getsops/sops
 ARG SOPS_VERSION=v3.7.3
 
 RUN case "${TARGETPLATFORM}" in \
@@ -23,7 +26,7 @@ RUN apk add --no-cache \
 # add helm
 RUN . /envfile && echo $ARCH && \
     apk add --update --no-cache curl ca-certificates bash git && \
-    curl -sL https://get.helm.sh/helm-v${HELM_VERSION}-linux-${ARCH}.tar.gz | tar -xvz && \
+    curl -sL https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz | tar -xvz && \
     mv linux-${ARCH}/helm /usr/bin/helm && \
     chmod +x /usr/bin/helm && \
     rm -rf linux-${ARCH}
@@ -47,7 +50,7 @@ RUN apk add --update --no-cache gettext
 
 # Install sops
 RUN . /envfile && \
-    curl -sLO https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${ARCH} && \
+    curl -sLO https://github.com/getsops/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.${ARCH} && \
     mv sops-${SOPS_VERSION}.linux.${ARCH} /usr/bin/sops && \
     chmod +x /usr/bin/sops
 
