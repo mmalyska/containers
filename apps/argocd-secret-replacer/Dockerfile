@@ -5,7 +5,7 @@ ARG VERSION
 ARG CHANNEL
 
 # renovate: datasource=github-releases depName=helm/helm
-ARG HELM_VERSION=v3.11.2
+ARG HELM_VERSION=v3.13.0
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize
 ARG KUSTOMIZE_VERSION=v4.5.7
 # renovate: datasource=github-releases depName=getsops/sops
