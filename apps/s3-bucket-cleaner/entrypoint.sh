@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 args=()
 [ ! -z "$DRYRUN" ] && args+=( '--dryrun' )
 
