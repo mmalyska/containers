@@ -1,0 +1,19 @@
+{
+  "app": "s3-bucket-cleaner",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Image with script for cleaning s3 bucket with old files",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}
