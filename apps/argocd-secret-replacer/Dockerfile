@@ -42,9 +42,6 @@ RUN . /envfile && \
     chmod +x /usr/bin/kustomize && \
     rm -rf kustomize_${KUSTOMIZE_VERSION#kustomize/}_linux_${ARCH}.tar.gz
 
-# Install jq
-RUN apk add --update --no-cache jq yq
-
 # Install for envsubst
 RUN apk add --update --no-cache gettext
 
