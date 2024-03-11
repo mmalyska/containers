@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/alpine:latest@sha256:34871e7290500828b39e22294660bee86d966bc0017544e848dd9a255cdf59e0
+FROM public.ecr.aws/docker/library/alpine:latest@sha256:c5b1261d6d3e43071626931fc004f70149baeba2c8ec672bd4f27761f8e1ad6b
 
 ARG TARGETPLATFORM
 ARG VERSION
@@ -21,7 +21,7 @@ RUN case "${TARGETPLATFORM}" in \
 
 # install dotnet dependencies https://learn.microsoft.com/en-us/dotnet/core/install/linux-alpine#dependencies
 RUN apk add --no-cache \
-    icu-libs krb5-libs libgcc libintl libssl1.1 libstdc++ zlib
+    icu-libs krb5-libs libgcc libintl libssl3 libstdc++ zlib
 
 # add helm
 RUN . /envfile && echo $ARCH && \
