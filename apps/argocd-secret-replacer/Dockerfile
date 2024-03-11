@@ -21,7 +21,7 @@ RUN case "${TARGETPLATFORM}" in \
 
 # install dotnet dependencies https://learn.microsoft.com/en-us/dotnet/core/install/linux-alpine#dependencies
 RUN apk add --no-cache \
-    icu-libs krb5-libs libgcc libintl libssl3.2 libstdc++ zlib
+    icu-libs krb5-libs libgcc libintl libssl3.1 libstdc++ zlib
 
 # add helm
 RUN . /envfile && echo $ARCH && \
