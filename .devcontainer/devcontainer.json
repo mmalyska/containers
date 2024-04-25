@@ -4,7 +4,7 @@
       "dockerfile": "Dockerfile"
   },
   "features": {
-    "ghcr.io/devcontainers/features/go:1": {}
+    "ghcr.io/devcontainers/features/go:1@sha256:6adad519ea1b49989de42ce5bde5add32748cae68eeb6034db4c2d69e87c161b": {}
   },
   "remoteUser": "codespace",
   "containerUser": "codespace"
