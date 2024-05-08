@@ -21,7 +21,7 @@ jobs:
       matrix: ${{ steps.fetch.outputs.changes }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.5
 
       - name: Install tools
         run: sudo apt-get install moreutils jo
