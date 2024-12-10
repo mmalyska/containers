@@ -7,7 +7,7 @@ RUN apk add --no-cache \
 
 # install dotnet curl tar
 RUN apk add --no-cache \
-    tar gzip curl dotnet7-runtime
+    tar gzip curl dotnet7-runtime glibc mono
 
 RUN mkdir server
 WORKDIR server
