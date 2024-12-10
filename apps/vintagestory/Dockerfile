@@ -17,4 +17,4 @@ RUN curl -sL https://cdn.vintagestory.at/gamefiles/stable/vs_server_linux-x64_${
 
 COPY ./apps/vintagestory/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
-ENTRYPOINT ["./entrypoint"]
+ENTRYPOINT ["./entrypoint.sh"]
