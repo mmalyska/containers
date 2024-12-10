@@ -1,0 +1,18 @@
+{
+  "app": "vintagestory",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Image with server for VintageStory",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}

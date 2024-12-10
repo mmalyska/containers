@@ -1,0 +1,7 @@
+---
+# https://github.com/aelsabbahy/goss/blob/master/docs/manual.md#file
+file:
+  /server/VintagestoryServer.dll:
+    exists: true
+  /server/entrypoint.sh:
+    exists: true
