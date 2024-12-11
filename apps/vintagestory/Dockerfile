@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/alpine:3.19
+FROM public.ecr.aws/docker/library/alpine:3.21@sha256:21dc6063fd678b478f57c0e13f47560d0ea4eeba26dfc947b2a4f81f686b9f45
 ARG VERSION
 
 # install dotnet dependencies https://learn.microsoft.com/en-us/dotnet/core/install/linux-alpine#dependencies
