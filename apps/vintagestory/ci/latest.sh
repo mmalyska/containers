@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-version="1.19.8"
+version="$(curl -sX GET "https://mods.vintagestory.at/api/gameversions" | jq --raw-output '.gameversions[0].name' 2>/dev/null)"
 printf "%s" "${version}"
