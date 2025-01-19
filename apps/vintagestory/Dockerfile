@@ -13,7 +13,8 @@ RUN mkdir /server
 WORKDIR /server
 
 RUN curl -sL https://cdn.vintagestory.at/gamefiles/stable/vs_server_linux-x64_${VERSION}.tar.gz | tar -xvzf - && \
-    chmod +x server.sh
+    chmod +x server.sh && \
+    cp /usr/lib/libsqlite3.so.0 /server/Lib/libe_sqlite3.so
 
 COPY ./apps/vintagestory/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
