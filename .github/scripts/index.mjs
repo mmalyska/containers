@@ -60,7 +60,7 @@ const upstream = async (app, channel, stable) => {
   try {
     await fs.promises.access(`./apps/${app}/ci/latest.sh`);
     let result = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`).toString();
-    if (result == 'null') {
+    if (result == 'null' || result == '') {
       return null;
     }
     return result;
