@@ -114,7 +114,7 @@ jobs:
         run: cue vet --schema '#Spec' ./apps/${{ matrix.image.app }}/metadata.json ./metadata.rules.cue
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3.6.0
+        uses: docker/setup-qemu-action@v3.7.0
 
       - name: Setup Docker Buildx
         id: buildx
