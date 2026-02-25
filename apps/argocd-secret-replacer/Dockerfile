@@ -9,7 +9,7 @@ ARG HELM_VERSION=v4.1.1
 # renovate: datasource=github-releases depName=kubernetes-sigs/kustomize
 ARG KUSTOMIZE_VERSION=kustomize/v4.5.7
 # renovate: datasource=github-releases depName=getsops/sops
-ARG SOPS_VERSION=v3.11.0
+ARG SOPS_VERSION=v3.12.1
 
 RUN case "${TARGETPLATFORM}" in \
     'linux/amd64') ARCH=amd64; ;; \
