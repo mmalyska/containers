@@ -8,12 +8,12 @@ The containers built here do not use immutable tags, as least not in the more co
 
 We take do take a similar approach but instead of appending a `-ls69` or `-r420` prefix to the tag we instead insist on pinning to the sha256 digest of the image, while this is not as pretty it is just as functional in making the images immutable.
 
-| Container                                          | Immutable |
-|----------------------------------------------------|-----------|
-| `ghcr.io/mmalyska/sonarr:rolling`                   | ❌         |
-| `ghcr.io/mmalyska/sonarr:3.0.8.1507`                | ❌         |
-| `ghcr.io/mmalyska/sonarr:rolling@sha256:8053...`    | ✅         |
-| `ghcr.io/mmalyska/sonarr:3.0.8.1507@sha256:8053...` | ✅         |
+| Container                                                               | Immutable |
+|-------------------------------------------------------------------------|-----------|
+| `ghcr.io/mmalyska/argocd-secret-replacer:rolling`                       | ❌         |
+| `ghcr.io/mmalyska/argocd-secret-replacer:1.2.3`                         | ❌         |
+| `ghcr.io/mmalyska/argocd-secret-replacer:rolling@sha256:8053...`        | ✅         |
+| `ghcr.io/mmalyska/argocd-secret-replacer:1.2.3@sha256:8053...`          | ✅         |
 
 _If pinning an image to the sha256 digest, tools like [Renovate](https://github.com/renovatebot/renovate) support updating the container on a digest or application version change._
 
@@ -46,24 +46,24 @@ For applications that need to have persistent configuration data the config volu
 6. Include any additional files if required
 7. Use Taskfile to build and test your image
 
-    ```ruby
-    task APP=sonarr CHANNEL=main test
+    ```bash
+    task APP=argocd-secret-replacer CHANNEL=stable test
     ```
 
 ### Automated tags
 
 Here's an example of how tags are created in the GitHub workflows, be careful with `metadata.json` as it does affect the outcome of how the tags will be created when the application is built.
 
-| Application | Channel   | Stable  | Base    | Generated Tag               |
-|-------------|-----------|---------|---------|-----------------------------|
-| `ubuntu`    | `focal`   | `true`  | `true`  | `ubuntu:focal-rolling`      |
-| `ubuntu`    | `focal`   | `true`  | `true`  | `ubuntu:focal-19880312`     |
-| `alpine`    | `3.16`    | `true`  | `true`  | `alpine:rolling`            |
-| `alpine`    | `3.16`    | `true`  | `true`  | `alpine:3.16.0`             |
-| `sonarr`    | `develop` | `false` | `false` | `sonarr-develop:3.0.8.1538` |
-| `sonarr`    | `develop` | `false` | `false` | `sonarr-develop:rolling`    |
-| `sonarr`    | `main`    | `true`  | `false` | `sonarr:3.0.8.1507`         |
-| `sonarr`    | `main`    | `true`  | `false` | `sonarr:rolling`            |
+| Application               | Channel    | Stable  | Base    | Generated Tag                              |
+|---------------------------|------------|---------|---------|--------------------------------------------|
+| `argocd-secret-replacer`  | `stable`   | `true`  | `false` | `argocd-secret-replacer:1.2.3`             |
+| `argocd-secret-replacer`  | `stable`   | `true`  | `false` | `argocd-secret-replacer:rolling`           |
+| `s3-bucket-cleaner`       | `stable`   | `true`  | `false` | `s3-bucket-cleaner:1.0.0`                  |
+| `s3-bucket-cleaner`       | `stable`   | `true`  | `false` | `s3-bucket-cleaner:rolling`                |
+| `vintagestory`            | `stable`   | `true`  | `false` | `vintagestory:1.19.8`                      |
+| `vintagestory`            | `stable`   | `true`  | `false` | `vintagestory:rolling`                     |
+| `myapp`                   | `develop`  | `false` | `false` | `myapp-develop:0.9.0`                      |
+| `myapp`                   | `develop`  | `false` | `false` | `myapp-develop:rolling`                    |
 
 ## Deprecations
 

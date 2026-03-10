@@ -1,5 +1,5 @@
-FROM mcr.microsoft.com/devcontainers/universal:5@sha256:feeaa66d9deb342b5a5a9fdcf8afef18689cd284359a67a62289a77772573337
-USER codespace
+FROM mcr.microsoft.com/devcontainers/base:debian
+USER vscode
 
 # [Optional] Uncomment this section to install additional OS packages.
 RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -8,7 +8,7 @@ RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
 
 # Pre install brew packages
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" \
-    && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" >> /home/codespace/.profile \
+    && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" >> /home/vscode/.profile \
     && brew analytics off
 
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:$PATH

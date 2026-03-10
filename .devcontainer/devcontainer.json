@@ -6,6 +6,7 @@
   "features": {
     "ghcr.io/devcontainers/features/go:1": {}
   },
-  "remoteUser": "codespace",
-  "containerUser": "codespace"
+  "remoteUser": "vscode",
+  "containerUser": "vscode",
+  "postCreateCommand": "mkdir -p /home/vscode/.claude/projects/-workspaces-containers && ln -sfn /workspaces/containers/.claude /home/vscode/.claude/projects/-workspaces-containers/memory"
 }
