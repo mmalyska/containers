@@ -9,7 +9,7 @@ RUN git clone --depth 1 https://github.com/azerothcore/azerothcore-wotlk . \
 
 RUN cmake -B cmake-build \
       -DCMAKE_INSTALL_PREFIX=/azerothcore/env/dist \
-      -DAPPS_BUILD=worldserver \
+      -DAPPS_BUILD=world-only \
       -DTOOLS_BUILD=none \
       -DSCRIPTS=static \
       -DMODULES=static \
