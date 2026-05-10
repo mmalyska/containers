@@ -22,4 +22,3 @@ FROM acore/ac-wotlk-worldserver:master
 COPY --from=builder /azerothcore/env/dist/bin/worldserver /azerothcore/env/dist/bin/worldserver
 COPY --from=builder /azerothcore/env/dist/etc/modules/ /azerothcore/env/ref/etc/modules/
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libboost_*.so.1.83.0 /usr/lib/x86_64-linux-gnu/
-RUN ldconfig
