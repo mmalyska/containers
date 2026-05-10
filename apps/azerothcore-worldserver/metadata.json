@@ -1,0 +1,18 @@
+{
+  "app": "azerothcore-worldserver",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "AzerothCore WotLK worldserver with mod-solocraft, mod-ah-bot, and mod-individual-progression",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": false,
+        "type": "cli"
+      }
+    }
+  ]
+}
