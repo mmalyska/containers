@@ -28,6 +28,8 @@ RUN cmake -B cmake-build \
       -DBoost_USE_STATIC_LIBS=ON \
  && cmake --build cmake-build --target install -j$(nproc)
 
+RUN for f in /azerothcore/env/dist/etc/modules/*.conf.dist; do cp "$f" "${f%.dist}"; done
+
 FROM acore/ac-wotlk-worldserver:master
 COPY --from=builder /azerothcore/env/dist/bin/worldserver /azerothcore/env/dist/bin/worldserver
 COPY --from=builder /azerothcore/env/dist/etc/modules/ /azerothcore/env/ref/etc/modules/
