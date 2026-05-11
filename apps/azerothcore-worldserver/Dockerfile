@@ -33,7 +33,3 @@ RUN for f in /azerothcore/env/dist/etc/modules/*.conf.dist; do cp "$f" "${f%.dis
 FROM acore/ac-wotlk-worldserver:master
 COPY --from=builder /azerothcore/env/dist/bin/worldserver /azerothcore/env/dist/bin/worldserver
 COPY --from=builder /azerothcore/env/dist/etc/modules/ /azerothcore/env/ref/etc/modules/
-COPY --from=builder /azerothcore-src/data/sql/updates/ /azerothcore-src/data/sql/updates/
-COPY --from=builder /azerothcore-src/modules/mod-solocraft/data/ /azerothcore-src/modules/mod-solocraft/data/
-COPY --from=builder /azerothcore-src/modules/mod-ah-bot/data/ /azerothcore-src/modules/mod-ah-bot/data/
-COPY --from=builder /azerothcore-src/modules/mod-individual-progression/data/ /azerothcore-src/modules/mod-individual-progression/data/
