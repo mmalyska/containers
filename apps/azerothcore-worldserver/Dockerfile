@@ -2,9 +2,11 @@ FROM acore/ac-wotlk-worldserver:master AS builder
 
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential cmake clang git \
-    libboost-all-dev libssl-dev default-libmysqlclient-dev \
-    libbz2-dev zlib1g-dev \
+    build-essential libtool cmake-data cmake clang \
+    git curl unzip openssl \
+    default-mysql-client default-libmysqlclient-dev libmysql++-dev \
+    libboost-all-dev libssl-dev \
+    libreadline-dev zlib1g-dev libbz2-dev libncurses5-dev \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /azerothcore-src
