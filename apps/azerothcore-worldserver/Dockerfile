@@ -2,7 +2,7 @@ FROM acore/ac-wotlk-worldserver:master AS builder
 
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    cmake clang git \
+    build-essential cmake clang git \
     libboost-all-dev libssl-dev default-libmysqlclient-dev \
     libbz2-dev zlib1g-dev \
  && rm -rf /var/lib/apt/lists/*
