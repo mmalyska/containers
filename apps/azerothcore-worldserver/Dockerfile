@@ -1,4 +1,4 @@
-FROM acore/ac-wotlk-worldserver:master AS builder
+FROM acore/ac-wotlk-worldserver:master@sha256:60668bfa0560cfe577bde12f7cd14638ef5e967453d175186950ee6cd98fd468 AS builder
 
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,6 +30,6 @@ RUN cmake -B cmake-build \
 
 RUN for f in /azerothcore/env/dist/etc/modules/*.conf.dist; do cp "$f" "${f%.dist}"; done
 
-FROM acore/ac-wotlk-worldserver:master
+FROM acore/ac-wotlk-worldserver:master@sha256:60668bfa0560cfe577bde12f7cd14638ef5e967453d175186950ee6cd98fd468
 COPY --from=builder /azerothcore/env/dist/bin/worldserver /azerothcore/env/dist/bin/worldserver
 COPY --from=builder /azerothcore/env/dist/etc/modules/ /azerothcore/env/ref/etc/modules/
