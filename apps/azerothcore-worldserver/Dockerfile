@@ -23,6 +23,7 @@ RUN cmake -B cmake-build \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_CXX_COMPILER=clang++ \
       -DCMAKE_C_COMPILER=clang \
+      -DBoost_USE_STATIC_LIBS=ON \
  && cmake --build cmake-build --target install -j$(nproc)
 
 FROM acore/ac-wotlk-worldserver:master
