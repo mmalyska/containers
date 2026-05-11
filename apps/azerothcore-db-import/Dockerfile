@@ -7,6 +7,6 @@ FROM acore/ac-wotlk-db-import:master
 COPY --from=module-cloner /modules/mod-solocraft /azerothcore/modules/mod-solocraft
 COPY --from=module-cloner /modules/mod-ah-bot /azerothcore/modules/mod-ah-bot
 COPY --from=module-cloner /modules/mod-individual-progression /azerothcore/modules/mod-individual-progression
-COPY import-with-modules.sh /import-with-modules.sh
+COPY apps/azerothcore-db-import/import-with-modules.sh /import-with-modules.sh
 RUN chmod +x /import-with-modules.sh
 CMD ["/import-with-modules.sh"]
