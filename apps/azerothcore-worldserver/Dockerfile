@@ -1,4 +1,11 @@
-FROM acore/ac-wotlk-dev:master AS builder
+FROM acore/ac-wotlk-worldserver:master AS builder
+
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake clang git \
+    libboost-all-dev libssl-dev default-libmysqlclient-dev \
+    libbz2-dev zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /azerothcore-src
 
@@ -21,4 +28,3 @@ RUN cmake -B cmake-build \
 FROM acore/ac-wotlk-worldserver:master
 COPY --from=builder /azerothcore/env/dist/bin/worldserver /azerothcore/env/dist/bin/worldserver
 COPY --from=builder /azerothcore/env/dist/etc/modules/ /azerothcore/env/ref/etc/modules/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libboost_*.so.1.83.0 /usr/lib/x86_64-linux-gnu/
