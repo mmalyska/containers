@@ -31,14 +31,12 @@ apply_sql_dir "/azerothcore/modules/mod-solocraft/data/sql/db-world/" \
 apply_sql_dir "/azerothcore/modules/mod-solocraft/data/sql/db-characters/" \
   "$chost" "$cport" "$cuser" "$cpass" "$cdb"
 
-# mod-individual-progression (base tables first, then incremental updates)
-apply_sql_dir "/azerothcore/modules/mod-individual-progression/data/sql/world/base/" \
-  "$whost" "$wport" "$wuser" "$wpass" "$wdb"
-apply_sql_dir "/azerothcore/modules/mod-individual-progression/data/sql/world/updates/" \
-  "$whost" "$wport" "$wuser" "$wpass" "$wdb"
-apply_sql_dir "/azerothcore/modules/mod-individual-progression/data/sql/auth/updates/" \
+# mod-transmog
+apply_sql_dir "/azerothcore/modules/mod-transmog/data/sql/db-auth/" \
   "$ahost" "$aport" "$auser" "$apass" "$adb"
-apply_sql_dir "/azerothcore/modules/mod-individual-progression/data/sql/characters/updates/" \
+apply_sql_dir "/azerothcore/modules/mod-transmog/data/sql/db-characters/" \
   "$chost" "$cport" "$cuser" "$cpass" "$cdb"
+apply_sql_dir "/azerothcore/modules/mod-transmog/data/sql/db-world/" \
+  "$whost" "$wport" "$wuser" "$wpass" "$wdb"
 
 echo "==> Module SQL import complete!"

@@ -14,7 +14,8 @@ WORKDIR /azerothcore-src
 RUN git clone --depth 1 https://github.com/azerothcore/azerothcore-wotlk . \
  && git clone --depth 1 https://github.com/azerothcore/mod-solocraft modules/mod-solocraft \
  && git clone --depth 1 https://github.com/azerothcore/mod-ah-bot modules/mod-ah-bot \
- && git clone --depth 1 https://github.com/ZhengPeiRu21/mod-individual-progression modules/mod-individual-progression
+ && git clone --depth 1 https://github.com/azerothcore/mod-transmog modules/mod-transmog \
+ && git clone --depth 1 https://github.com/azerothcore/mod-solo-lfg modules/mod-solo-lfg
 
 RUN cmake -B cmake-build \
       -DCMAKE_INSTALL_PREFIX=/azerothcore/env/dist \
