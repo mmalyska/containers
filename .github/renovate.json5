@@ -14,6 +14,12 @@
       "matchDatasources": ["docker"],
       "matchUpdateTypes": ["digest"],
       "commitMessagePrefix": "📣 "
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["^acore/ac-wotlk-"],
+      "matchUpdateTypes": ["digest"],
+      "groupName": "azerothcore wow images"
     }
   ]
 }
