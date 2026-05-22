@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-version="$(curl -sX GET "https://api.github.com/repos/azerothcore/azerothcore-wotlk/commits?per_page=1&sha=master" 2>/dev/null \
-  | jq -r '.[0].commit.committer.date[:10]')"
+version="$(grep -m1 'fetch --depth 1 origin' "$(dirname "$0")/../Dockerfile" \
+  | grep -oE '[0-9a-f]{40}')"
 printf "%s" "${version}"
