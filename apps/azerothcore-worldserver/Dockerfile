@@ -2,6 +2,15 @@ FROM acore/ac-wotlk-worldserver:master@sha256:cb1a0999a991808de672ba7b5a17fa2a7b
 
 ARG VERSION
 
+# renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-solocraft
+ARG MOD_SOLOCRAFT_SHA=c3fb0b92b4372a9541f92cb4595e1ab08223e977
+# renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-ah-bot
+ARG MOD_AHBOT_SHA=a680cc1c98290713e9b3d3289544af78e5186dc1
+# renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-transmog
+ARG MOD_TRANSMOG_SHA=d1a6238fa07b3d08e3919b5c94c64a9e689c6108
+# renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-solo-lfg
+ARG MOD_SOLOLFG_SHA=3821fe1d108ade8d2b7ad6611e41154e05864c65
+
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential libtool cmake-data cmake clang \
@@ -13,27 +22,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /azerothcore-src
 
-# Main repo version is injected via VERSION build arg (set by ci/latest.sh).
-# Module SHAs are pinned — update together when bumping the base image digest above.
+# Main repo version injected via VERSION build arg (set by ci/latest.sh).
+# Module SHAs managed via ARG above — updated by Renovate.
 RUN git init . \
  && git remote add origin https://github.com/azerothcore/azerothcore-wotlk \
  && git fetch --depth 1 origin ${VERSION} \
  && git checkout FETCH_HEAD \
  && git init modules/mod-solocraft \
  && git -C modules/mod-solocraft remote add origin https://github.com/azerothcore/mod-solocraft \
- && git -C modules/mod-solocraft fetch --depth 1 origin c3fb0b92b4372a9541f92cb4595e1ab08223e977 \
+ && git -C modules/mod-solocraft fetch --depth 1 origin ${MOD_SOLOCRAFT_SHA} \
  && git -C modules/mod-solocraft checkout FETCH_HEAD \
  && git init modules/mod-ah-bot \
  && git -C modules/mod-ah-bot remote add origin https://github.com/azerothcore/mod-ah-bot \
- && git -C modules/mod-ah-bot fetch --depth 1 origin a680cc1c98290713e9b3d3289544af78e5186dc1 \
+ && git -C modules/mod-ah-bot fetch --depth 1 origin ${MOD_AHBOT_SHA} \
  && git -C modules/mod-ah-bot checkout FETCH_HEAD \
  && git init modules/mod-transmog \
  && git -C modules/mod-transmog remote add origin https://github.com/azerothcore/mod-transmog \
- && git -C modules/mod-transmog fetch --depth 1 origin d1a6238fa07b3d08e3919b5c94c64a9e689c6108 \
+ && git -C modules/mod-transmog fetch --depth 1 origin ${MOD_TRANSMOG_SHA} \
  && git -C modules/mod-transmog checkout FETCH_HEAD \
  && git init modules/mod-solo-lfg \
  && git -C modules/mod-solo-lfg remote add origin https://github.com/azerothcore/mod-solo-lfg \
- && git -C modules/mod-solo-lfg fetch --depth 1 origin 3821fe1d108ade8d2b7ad6611e41154e05864c65 \
+ && git -C modules/mod-solo-lfg fetch --depth 1 origin ${MOD_SOLOLFG_SHA} \
  && git -C modules/mod-solo-lfg checkout FETCH_HEAD
 
 RUN cmake -B cmake-build \

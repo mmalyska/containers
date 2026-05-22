@@ -9,6 +9,18 @@
   "username": "bendo-bot[bot]",
   "gitAuthor": "bendo-bot <126472327+bendo-bot[bot]@users.noreply.github.com>",
   "repositories": ["mmalyska/containers"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update azerothcore module commit SHAs",
+      "fileMatch": ["apps/azerothcore-worldserver/Dockerfile"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\nARG [A-Z_]+=(?<currentDigest>[0-9a-f]{40})"
+      ],
+      "currentValueTemplate": "master",
+      "versioningTemplate": "loose"
+    }
+  ],
   "packageRules": [
     {
       "matchDatasources": ["docker"],
@@ -19,6 +31,11 @@
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["^acore/ac-wotlk-"],
       "matchUpdateTypes": ["digest"],
+      "groupName": "azerothcore wow images"
+    },
+    {
+      "matchDatasources": ["git-refs"],
+      "matchPackagePatterns": ["azerothcore/mod-"],
       "groupName": "azerothcore wow images"
     }
   ]
