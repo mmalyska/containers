@@ -84,6 +84,38 @@ task
 - `stable`: affects tag naming — stable channels omit the channel name from the tag
 - `tests.type`: `"cli"` (run with `tail -f /dev/null`) or `"web"` (service stays running)
 
+## Version Tracking Flow
+
+How an app's version moves from upstream to a published image tag:
+
+1. **`ci/latest.sh`** — prints the current upstream version to stdout (no newline).
+   The string can be a semver, date, or commit SHA — anything unique per release.
+   Called by CI as `./apps/<name>/ci/latest.sh "<channel>" "<stable>"`.
+
+2. **`index.mjs` (`changes` export)** — runs `latest.sh` to get `upstreamVersion`,
+   then queries GHCR for the non-`rolling` tag on the published `rolling` image
+   (`publishedVersion`). If they differ, the app is queued for a rebuild.
+   Comparison is **string equality** — no semver parsing.
+
+3. **CI build** — passes the version as a Docker build arg:
+   ```
+   VERSION=<upstreamVersion>
+   CHANNEL=<channel>
+   ```
+
+4. **Dockerfile** — receives it via `ARG VERSION` and uses `${VERSION}` wherever
+   the upstream version is needed (download URL, git checkout, etc.).
+
+5. **Published tags** — the built image is tagged `rolling` + `<upstreamVersion>`.
+   Next hourly run compares the new `publishedVersion` against `latest.sh` output.
+
+### Implications for `latest.sh`
+
+- Return whatever string uniquely identifies the built artifact — semver, date, or SHA.
+- If the upstream is a Git repo tracked by commit, return the full commit SHA so
+  the comparison is unambiguous (dates collide; short SHAs are not canonical).
+- Keep it idempotent: same upstream state → same output → no spurious rebuilds.
+
 ## Conventions
 
 - CUE schema at `metadata.rules.cue` validates all `metadata.json` — always run `cue vet` before committing
