@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl unzip openssl \
     default-mysql-client default-libmysqlclient-dev libmysql++-dev \
     libboost-all-dev libssl-dev \
-    libreadline-dev zlib1g-dev libbz2-dev libncurses5-dev \
+    libreadline-dev zlib1g-dev libbz2-dev libncurses5-dev liblzma-dev \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /azerothcore-src
