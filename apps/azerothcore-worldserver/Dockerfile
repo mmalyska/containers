@@ -1,5 +1,7 @@
 FROM acore/ac-wotlk-worldserver:master@sha256:cb1a0999a991808de672ba7b5a17fa2a7bebda2e0a1edaaba843b5c83dfad25a AS builder
 
+ARG VERSION
+
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential libtool cmake-data cmake clang \
@@ -11,11 +13,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /azerothcore-src
 
-# Pinned to specific commits for reproducible builds.
-# Update these together when bumping the base image digest above.
+# Main repo version is injected via VERSION build arg (set by ci/latest.sh).
+# Module SHAs are pinned — update together when bumping the base image digest above.
 RUN git init . \
  && git remote add origin https://github.com/azerothcore/azerothcore-wotlk \
- && git fetch --depth 1 origin 027306fa0a98e7caebef2e183c5edf2239f8bf2d \
+ && git fetch --depth 1 origin ${VERSION} \
  && git checkout FETCH_HEAD \
  && git init modules/mod-solocraft \
  && git -C modules/mod-solocraft remote add origin https://github.com/azerothcore/mod-solocraft \
