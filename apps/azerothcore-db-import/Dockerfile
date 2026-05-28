@@ -1,4 +1,4 @@
-FROM alpine/git@sha256:3136372ed3c9e112d5a2620c66a6803e1b0b7f14a428fcbd0c5028bec4256430 AS module-cloner
+FROM alpine/git@sha256:4cf963b6304822ad7ee6f79b2a236ff21519568f3d6884f6a33eccacb9297ab3 AS module-cloner
 RUN git clone --depth 1 https://github.com/azerothcore/mod-solocraft /modules/mod-solocraft \
  && git clone --depth 1 https://github.com/azerothcore/mod-ah-bot /modules/mod-ah-bot \
  && git clone --depth 1 https://github.com/azerothcore/mod-transmog /modules/mod-transmog
