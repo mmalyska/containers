@@ -46,7 +46,7 @@ jobs:
         image: ["${{ fromJson(inputs.imagesToBuild) }}"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
         with:
           fetch-depth: 1
 
