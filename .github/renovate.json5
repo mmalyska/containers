@@ -1,42 +1,60 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "github>mmalyska/renovate-config",
-    "github>mmalyska/renovate-config:automerge-github-actions",
-    "github>mmalyska/renovate-config:automerge-docker-digest"
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'github>mmalyska/renovate-config',
+    'github>mmalyska/renovate-config:automerge-github-actions',
+    'github>mmalyska/renovate-config:automerge-docker-digest',
   ],
-  "platform": "github",
-  "username": "bendo-bot[bot]",
-  "gitAuthor": "bendo-bot <126472327+bendo-bot[bot]@users.noreply.github.com>",
-  "repositories": ["mmalyska/containers"],
-  "customManagers": [
+  platform: 'github',
+  username: 'bendo-bot[bot]',
+  gitAuthor: 'bendo-bot <126472327+bendo-bot[bot]@users.noreply.github.com>',
+  repositories: [
+    'mmalyska/containers',
+  ],
+  customManagers: [
     {
-      "customType": "regex",
-      "description": "Update azerothcore module commit SHAs",
-      "fileMatch": ["apps/azerothcore-worldserver/Dockerfile"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\nARG [A-Z_]+=(?<currentDigest>[0-9a-f]{40})"
+      customType: 'regex',
+      description: 'Update azerothcore module commit SHAs',
+      managerFilePatterns: [
+        '/apps/azerothcore-worldserver/Dockerfile/',
       ],
-      "currentValueTemplate": "master",
-      "versioningTemplate": "loose"
-    }
+      matchStrings: [
+        '# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\nARG [A-Z_]+=(?<currentDigest>[0-9a-f]{40})',
+      ],
+      currentValueTemplate: 'master',
+      versioningTemplate: 'loose',
+    },
   ],
-  "packageRules": [
+  packageRules: [
     {
-      "matchDatasources": ["docker"],
-      "matchUpdateTypes": ["digest"],
-      "commitMessagePrefix": "📣 "
+      matchDatasources: [
+        'docker',
+      ],
+      matchUpdateTypes: [
+        'digest',
+      ],
+      commitMessagePrefix: '📣 ',
     },
     {
-      "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["^acore/ac-wotlk-"],
-      "matchUpdateTypes": ["digest"],
-      "groupName": "azerothcore wow images"
+      matchDatasources: [
+        'docker',
+      ],
+      matchUpdateTypes: [
+        'digest',
+      ],
+      groupName: 'azerothcore wow images',
+      matchPackageNames: [
+        '/^acore/ac-wotlk-/',
+      ],
     },
     {
-      "matchDatasources": ["git-refs"],
-      "matchPackagePatterns": ["azerothcore/mod-"],
-      "groupName": "azerothcore wow images"
-    }
-  ]
+      matchDatasources: [
+        'git-refs',
+      ],
+      groupName: 'azerothcore wow images',
+      matchPackageNames: [
+        '/azerothcore/mod-/',
+      ],
+    },
+  ],
 }
