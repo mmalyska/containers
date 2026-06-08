@@ -14,7 +14,7 @@ ARG TALOSCTL_VERSION=v1.9.0
 # renovate: datasource=github-releases depName=hashicorp/terraform
 ARG TERRAFORM_VERSION=1.10.0
 # renovate: datasource=github-releases depName=derailed/k9s
-ARG K9S_VERSION=v0.32.0
+ARG K9S_VERSION=v0.51.0
 
 RUN curl -fsSL https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
       -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl \
