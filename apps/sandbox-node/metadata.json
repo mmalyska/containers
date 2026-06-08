@@ -1,0 +1,18 @@
+{
+  "app": "sandbox-node",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Coder workspace sandbox for Node.js/mobile development: Node.js 22, pnpm, expo-cli, eas-cli",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}

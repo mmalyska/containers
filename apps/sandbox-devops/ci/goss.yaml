@@ -1,0 +1,22 @@
+---
+file:
+  /usr/local/bin/kubectl:
+    exists: true
+  /usr/local/bin/helm:
+    exists: true
+  /usr/local/bin/talosctl:
+    exists: true
+  /usr/local/bin/terraform:
+    exists: true
+  /usr/local/bin/k9s:
+    exists: true
+  /usr/local/bin/age:
+    exists: true
+
+command:
+  kubectl version --client:
+    exit-status: 0
+  helm version:
+    exit-status: 0
+  terraform version:
+    exit-status: 0

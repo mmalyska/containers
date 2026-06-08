@@ -1,0 +1,18 @@
+{
+  "app": "sandbox-dotnet",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Coder workspace sandbox for .NET development: dotnet-sdk-9.0, dotnet-ef, csharpier",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}

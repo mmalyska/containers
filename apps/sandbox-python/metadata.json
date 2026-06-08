@@ -1,0 +1,18 @@
+{
+  "app": "sandbox-python",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Coder workspace sandbox for Python/data science: Python 3.12, uv, jupyter, pandas, numpy, scipy, scikit-learn",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}

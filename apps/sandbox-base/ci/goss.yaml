@@ -1,0 +1,16 @@
+---
+file:
+  /usr/sbin/sshd:
+    exists: true
+  /etc/ssh/sshd_config:
+    exists: true
+  /etc/sudoers.d/coder:
+    exists: true
+
+command:
+  git --version:
+    exit-status: 0
+  curl --version:
+    exit-status: 0
+  jq --version:
+    exit-status: 0

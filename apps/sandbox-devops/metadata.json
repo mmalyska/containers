@@ -1,0 +1,18 @@
+{
+  "app": "sandbox-devops",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Coder workspace sandbox for DevOps workflows: kubectl, helm, talosctl, terraform, k9s, age",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}
