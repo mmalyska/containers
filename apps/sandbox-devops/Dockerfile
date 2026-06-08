@@ -30,7 +30,7 @@ RUN curl -fsSL https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/
       | tar xz -C /usr/local/bin k9s
 
 # renovate: datasource=github-releases depName=FiloSottile/age
-ARG AGE_VERSION=v1.2.0
+ARG AGE_VERSION=v1.3.1
 RUN curl -fsSL https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/age-${AGE_VERSION}-linux-amd64.tar.gz \
       | tar xz -C /tmp && mv /tmp/age/age /usr/local/bin/ && mv /tmp/age/age-keygen /usr/local/bin/
 
