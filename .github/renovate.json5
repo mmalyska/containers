@@ -5,12 +5,7 @@
     'github>mmalyska/renovate-config:automerge-github-actions',
     'github>mmalyska/renovate-config:automerge-docker-digest',
   ],
-  platform: 'github',
-  username: 'bendo-bot[bot]',
   gitAuthor: 'bendo-bot <126472327+bendo-bot[bot]@users.noreply.github.com>',
-  repositories: [
-    'mmalyska/containers',
-  ],
   customManagers: [
     {
       customType: 'regex',
@@ -34,6 +29,7 @@
         'digest',
       ],
       commitMessagePrefix: '📣 ',
+      automergeType: 'pr',
     },
     {
       matchDatasources: [
