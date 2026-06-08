@@ -9,10 +9,11 @@ USER root
 ARG NODE_VERSION=22
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && corepack enable pnpm
 
 USER coder
 ENV PNPM_HOME="/home/coder/.local/share/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable pnpm \
+ENV PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
+RUN mkdir -p "$PNPM_HOME/bin" \
     && pnpm add -g expo-cli @expo/cli eas-cli
