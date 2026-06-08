@@ -6,7 +6,7 @@ ARG CHANNEL
 USER root
 
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
-ARG KUBECTL_VERSION=v1.32.0
+ARG KUBECTL_VERSION=v1.36.1
 # renovate: datasource=github-releases depName=helm/helm
 ARG HELM_VERSION=v3.17.0
 # renovate: datasource=github-releases depName=siderolabs/talos
