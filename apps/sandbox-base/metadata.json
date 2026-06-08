@@ -1,0 +1,18 @@
+{
+  "app": "sandbox-base",
+  "base": true,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Base Ubuntu 24.04 image with SSH server and coder user for Coder workspace sandboxes",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}

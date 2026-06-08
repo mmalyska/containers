@@ -1,0 +1,6 @@
+---
+command:
+  node --version:
+    exit-status: 0
+  npm --version:
+    exit-status: 0
