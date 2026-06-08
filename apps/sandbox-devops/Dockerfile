@@ -1,4 +1,4 @@
-FROM ghcr.io/mmalyska/sandbox-base:rolling
+FROM ghcr.io/mmalyska/sandbox-base:rolling@sha256:7ef924ccf746ac038612eed957aa90ddf44bd0752edf32e43ad214fafdf44db8
 
 ARG VERSION
 ARG CHANNEL
@@ -6,15 +6,15 @@ ARG CHANNEL
 USER root
 
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
-ARG KUBECTL_VERSION=v1.32.0
+ARG KUBECTL_VERSION=v1.36.1
 # renovate: datasource=github-releases depName=helm/helm
 ARG HELM_VERSION=v4.2.0
 # renovate: datasource=github-releases depName=siderolabs/talos
-ARG TALOSCTL_VERSION=v1.9.0
+ARG TALOSCTL_VERSION=v1.13.3
 # renovate: datasource=github-releases depName=hashicorp/terraform
-ARG TERRAFORM_VERSION=1.10.0
+ARG TERRAFORM_VERSION=1.15.5
 # renovate: datasource=github-releases depName=derailed/k9s
-ARG K9S_VERSION=v0.32.0
+ARG K9S_VERSION=v0.51.0
 
 RUN curl -fsSL https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
       -o /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl \
@@ -30,7 +30,7 @@ RUN curl -fsSL https://github.com/derailed/k9s/releases/download/${K9S_VERSION}/
       | tar xz -C /usr/local/bin k9s
 
 # renovate: datasource=github-releases depName=FiloSottile/age
-ARG AGE_VERSION=v1.2.0
+ARG AGE_VERSION=v1.3.1
 RUN curl -fsSL https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/age-${AGE_VERSION}-linux-amd64.tar.gz \
       | tar xz -C /tmp && mv /tmp/age/age /usr/local/bin/ && mv /tmp/age/age-keygen /usr/local/bin/
 
