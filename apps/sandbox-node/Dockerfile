@@ -14,5 +14,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
 
 USER coder
 ENV PNPM_HOME="/home/coder/.local/share/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN pnpm add -g expo-cli @expo/cli eas-cli
+ENV PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
+RUN mkdir -p "$PNPM_HOME/bin" \
+    && pnpm add -g expo-cli @expo/cli eas-cli

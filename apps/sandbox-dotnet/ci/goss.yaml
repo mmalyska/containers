@@ -1,4 +1,8 @@
 ---
+file:
+  /usr/local/dotnet/dotnet:
+    exists: true
+
 command:
   dotnet --version:
     exit-status: 0
