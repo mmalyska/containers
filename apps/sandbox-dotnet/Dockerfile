@@ -6,18 +6,13 @@ ARG CHANNEL
 USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libicu76 \
-    libgssapi-krb5-2 \
+    software-properties-common \
+    && add-apt-repository ppa:dotnet/backports \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    dotnet-sdk-9.0 \
+    dotnet-sdk-10.0 \
+    && apt-get remove --autoremove -y software-properties-common \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
-    && chmod +x /tmp/dotnet-install.sh \
-    && /tmp/dotnet-install.sh --channel 9.0 --install-dir /usr/local/dotnet \
-    && /tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/local/dotnet \
-    && rm /tmp/dotnet-install.sh
-
-ENV DOTNET_ROOT=/usr/local/dotnet
-ENV PATH="$PATH:/usr/local/dotnet"
 
 USER coder
 ENV PATH="$PATH:/home/coder/.dotnet/tools"
