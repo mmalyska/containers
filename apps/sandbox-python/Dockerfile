@@ -6,10 +6,10 @@ ARG CHANNEL
 USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.12 \
-    python3.12-venv \
+    python3 \
+    python3-venv \
     python3-pip \
-    python3.12-dev \
+    python3-dev \
     build-essential \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
