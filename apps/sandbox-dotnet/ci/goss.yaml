@@ -1,6 +1,6 @@
 ---
 file:
-  /usr/local/dotnet/dotnet:
+  /usr/bin/dotnet:
     exists: true
 
 command:
