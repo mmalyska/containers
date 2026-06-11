@@ -10,7 +10,7 @@ ARG KUBECTL_VERSION=v1.36.1
 # renovate: datasource=github-releases depName=helm/helm
 ARG HELM_VERSION=v4.2.0
 # renovate: datasource=github-releases depName=siderolabs/talos
-ARG TALOSCTL_VERSION=v1.13.3
+ARG TALOSCTL_VERSION=v1.13.4
 # renovate: datasource=github-releases depName=hashicorp/terraform
 ARG TERRAFORM_VERSION=1.15.5
 # renovate: datasource=github-releases depName=derailed/k9s
