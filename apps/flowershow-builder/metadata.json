@@ -1,0 +1,19 @@
+{
+  "app": "flowershow-builder",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Image containing flowershow app to build website out of markdown files",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": false,
+        "type": "cli"
+      }
+    }
+  ]
+}
