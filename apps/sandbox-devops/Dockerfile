@@ -12,7 +12,7 @@ ARG HELM_VERSION=v4.2.1
 # renovate: datasource=github-releases depName=siderolabs/talos
 ARG TALOSCTL_VERSION=v1.13.4
 # renovate: datasource=github-releases depName=hashicorp/terraform
-ARG TERRAFORM_VERSION=1.15.6
+ARG TERRAFORM_VERSION=1.15.7
 # renovate: datasource=github-releases depName=derailed/k9s
 ARG K9S_VERSION=v0.51.0
 
