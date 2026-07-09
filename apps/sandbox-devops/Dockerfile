@@ -8,7 +8,7 @@ USER root
 # renovate: datasource=github-releases depName=kubernetes/kubernetes
 ARG KUBECTL_VERSION=v1.36.2
 # renovate: datasource=github-releases depName=helm/helm
-ARG HELM_VERSION=v4.2.2
+ARG HELM_VERSION=v4.2.3
 # renovate: datasource=github-releases depName=siderolabs/talos
 ARG TALOSCTL_VERSION=v1.13.6
 # renovate: datasource=github-releases depName=hashicorp/terraform
