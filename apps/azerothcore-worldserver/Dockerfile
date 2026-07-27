@@ -7,7 +7,7 @@ ARG MOD_SOLOCRAFT_SHA=c3fb0b92b4372a9541f92cb4595e1ab08223e977
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-ah-bot
 ARG MOD_AHBOT_SHA=a680cc1c98290713e9b3d3289544af78e5186dc1
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-transmog
-ARG MOD_TRANSMOG_SHA=33ac64b2c305eb1b6fbc97310a7ecbc30c2ba4ef
+ARG MOD_TRANSMOG_SHA=0d85cbc53d63ce2df8527169ce6ae47f5f6f6ba8
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-solo-lfg
 ARG MOD_SOLOLFG_SHA=3821fe1d108ade8d2b7ad6611e41154e05864c65
 
