@@ -3,7 +3,7 @@ RUN git clone --depth 1 https://github.com/azerothcore/mod-solocraft /modules/mo
  && git clone --depth 1 https://github.com/azerothcore/mod-ah-bot /modules/mod-ah-bot \
  && git clone --depth 1 https://github.com/azerothcore/mod-transmog /modules/mod-transmog
 
-FROM acore/ac-wotlk-db-import:master@sha256:d3a41b2fba6abeeb89618a562e2192a0c8a5ac21cd10d569d3c43e2e4639e484
+FROM acore/ac-wotlk-db-import:master@sha256:1ac5ac8185a37b66c9d235391f455aac9d62ab1632c941ed5f95ea59073db5f0
 COPY --from=module-cloner /modules/mod-solocraft /azerothcore/modules/mod-solocraft
 COPY --from=module-cloner /modules/mod-ah-bot /azerothcore/modules/mod-ah-bot
 COPY --from=module-cloner /modules/mod-transmog /azerothcore/modules/mod-transmog
