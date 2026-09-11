@@ -1,1 +1,1 @@
-FROM acore/ac-wotlk-authserver:master@sha256:61fa83ba32f417b59120d6e1d2ca01eaebf26f5b678ea151f7a3c5ab3a1696d3
+FROM acore/ac-wotlk-authserver:master@sha256:67c0b964f4fabececa107af4c13f78a977f584905088eb4a40979ec586193844
