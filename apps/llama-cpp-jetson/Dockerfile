@@ -39,6 +39,16 @@
 # dynamic linker can't resolve, so `llama-server --help` fails with "error
 # while loading shared libraries" there even though the binary is fine.
 # Functional verification only happens by deploying to nv1 itself.
+#
+# GGML_NATIVE=OFF is required, not optional tuning: it defaults ON and
+# auto-detects/targets whatever CPU the BUILD runs on (cmake's
+# `-march=native` equivalent). This is built on a generic hosted arm64 CI
+# runner, not nv1 — with GGML_NATIVE left at its default, the binary used
+# CPU instructions Orin's Cortex-A78AE cores don't have and crashed with
+# SIGILL (exit 132) the moment it ran, confirmed first-hand on nv1. This
+# forces a portable baseline instead; reclaiming SIMD perf for Orin
+# specifically would mean pinning explicit -march flags for its real
+# feature set, not attempted here.
 
 ARG BASE_IMAGE=ghcr.io/nvidia-ai-iot/llama_cpp:b8708-r36.4-tegra-aarch64-cu126-22.04@sha256:8fa5df9a76d3ddce89ade0ae67822afdfac27a5fe3a9e5eff7b6dfd72cd34f6b
 FROM ${BASE_IMAGE}
@@ -59,6 +69,7 @@ RUN set -eux; \
         -B /tmp/llama-cpp-src/build \
         -S /tmp/llama-cpp-src \
         -DCMAKE_BUILD_TYPE=Release \
+        -DGGML_NATIVE=OFF \
         -DGGML_CUDA=ON \
         -DGGML_CUDA_FA_ALL_QUANTS=ON \
         -DCMAKE_CUDA_ARCHITECTURES=${CUDA_ARCHITECTURES} \
@@ -70,7 +81,11 @@ RUN set -eux; \
         -DLLAMA_USE_PREBUILT_UI=OFF; \
     cmake --build /tmp/llama-cpp-src/build --config Release --parallel "$(nproc)"; \
     cmake --install /tmp/llama-cpp-src/build --prefix /usr/local; \
-    rm -rf /tmp/llama-cpp-src; \
-    test -x /usr/local/bin/llama-server
+    rm -rf /tmp/llama-cpp-src
+
+# Kept as its own layer, separate from the (expensive) build above: any
+# future tweak to this check alone shouldn't invalidate the compile's cache
+# entry. Deliberately non-executing — see the comment block above for why.
+RUN test -x /usr/local/bin/llama-server
 
 WORKDIR /workspace

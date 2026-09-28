@@ -37,6 +37,16 @@ internal libraries (not the CUDA runtime itself, which stays dynamic from
 the base image), closing off the exact class of bug that broke the `cu129`
 image.
 
+`GGML_NATIVE=OFF` is required, not optional. It defaults ON and
+auto-detects/targets whatever CPU the *build* runs on — but this builds on
+a generic hosted arm64 CI runner, not nv1. Left at its default, the
+resulting binary used CPU instructions Orin's Cortex-A78AE cores don't
+have and crashed on nv1 with `SIGILL` (exit 132) the instant it started —
+confirmed first-hand by deploying it. `GGML_NATIVE=OFF` forces a portable
+baseline instead. Reclaiming SIMD performance for Orin specifically would
+mean pinning explicit `-march`/`-mcpu` flags for its real feature set; not
+attempted here.
+
 ## Testing
 
 Neither the Dockerfile's own build-time check nor CI's `goss` check ever
