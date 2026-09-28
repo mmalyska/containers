@@ -22,6 +22,13 @@
 # shared lib in the final image layer. Statically linking llama.cpp's own
 # internal libs (not the CUDA runtime, which stays dynamic from the base
 # image) removes that whole class of packaging bug.
+#
+# LLAMA_BUILD_UI=OFF / LLAMA_USE_PREBUILT_UI=OFF: llama.cpp now embeds a web
+# UI into llama-server by default, provisioned via npm (not installed here)
+# or a Hugging Face download at build time (which failed/returned an
+# incomplete asset set in CI and hard-failed the build instead of falling
+# back). nv1 serves this headlessly from k8s — no browser ever hits it — so
+# skip UI provisioning entirely rather than depend on either path.
 
 ARG BASE_IMAGE=ghcr.io/nvidia-ai-iot/llama_cpp:b8708-r36.4-tegra-aarch64-cu126-22.04@sha256:8fa5df9a76d3ddce89ade0ae67822afdfac27a5fe3a9e5eff7b6dfd72cd34f6b
 FROM ${BASE_IMAGE}
@@ -48,7 +55,9 @@ RUN set -eux; \
         -DLLAMA_BUILD_SERVER=ON \
         -DLLAMA_BUILD_TESTS=OFF \
         -DLLAMA_BUILD_EXAMPLES=OFF \
-        -DBUILD_SHARED_LIBS=OFF; \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DLLAMA_BUILD_UI=OFF \
+        -DLLAMA_USE_PREBUILT_UI=OFF; \
     cmake --build /tmp/llama-cpp-src/build --config Release --parallel "$(nproc)"; \
     cmake --install /tmp/llama-cpp-src/build --prefix /usr/local; \
     rm -rf /tmp/llama-cpp-src; \
