@@ -1,0 +1,16 @@
+# Build-time smoke test only. This image needs Jetson/Tegra GPU hardware to
+# do anything meaningful (model load, CUDA offload), which CI does not have
+# (builds run under QEMU arm64 emulation, no device passthrough) — so this
+# only proves the binary exists, is statically linked against llama.cpp's own
+# libs (no missing .so, the bug that broke NVIDIA's b9066 cu129 image), and
+# doesn't crash on plain argument parsing. Real verification happens by
+# deploying to nv1 — see the plan this app was built for:
+# docs/superpowers/plans/2026-09-28-llm-model-swap-lfm2.5.md (home-ops repo).
+file:
+  /usr/local/bin/llama-server:
+    exists: true
+    filetype: file
+
+command:
+  /usr/local/bin/llama-server --help:
+    exit-status: 0

@@ -1,0 +1,18 @@
+{
+  "app": "llama-cpp-jetson",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "llama-server built from a current ggml-org/llama.cpp release on top of NVIDIA's last known-good Jetson JetPack6/r36.4/CUDA12.6/Orin(sm_87) image, for nv1 in home-ops",
+      "platforms": [
+        "linux/arm64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}
