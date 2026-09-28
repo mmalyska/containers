@@ -1,4 +1,4 @@
-FROM acore/ac-wotlk-worldserver:master@sha256:7b4d8c4e1f96b4b22ce40c76405eb3d973273c732c28c6db27c1c9b8372e1621 AS builder
+FROM acore/ac-wotlk-worldserver:master@sha256:71e641457a151abbc98500321413dfd85d8fc72b63efe199016a6408775e562b AS builder
 
 ARG VERSION
 
@@ -59,7 +59,7 @@ RUN cmake -B cmake-build \
 
 RUN for f in /azerothcore/env/dist/etc/modules/*.conf.dist; do cp "$f" "${f%.dist}"; done
 
-FROM acore/ac-wotlk-worldserver:master@sha256:7b4d8c4e1f96b4b22ce40c76405eb3d973273c732c28c6db27c1c9b8372e1621
+FROM acore/ac-wotlk-worldserver:master@sha256:71e641457a151abbc98500321413dfd85d8fc72b63efe199016a6408775e562b
 
 # Add runtime deps introduced by the Ubuntu 22.04 → 24.04 upgrade in the base image.
 # Mirrors what upstream added in azerothcore-wotlk PR #24459.
