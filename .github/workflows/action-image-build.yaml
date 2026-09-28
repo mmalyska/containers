@@ -37,13 +37,57 @@ on:
         type: string
 
 jobs:
+  # Native arm64 runners can only be picked per-job at scheduling time, before
+  # any step has run - so the platform lookup that decides "which runner"
+  # can't happen inside the matrixed build job itself (chicken-and-egg). This
+  # job does that lookup up front and hands the build job an enriched matrix
+  # that already carries a `runsOn` per image/channel.
+  prepare-matrix:
+    name: Assign runners
+    runs-on: ubuntu-latest
+    if: inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]'
+    outputs:
+      matrix: ${{ steps.enrich.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Assign a runner per image based on target platforms
+        id: enrich
+        shell: bash
+        run: |-
+          rows=()
+          while IFS= read -r row; do
+            app=$(jq --raw-output '.app' <<< "${row}")
+            channel=$(jq --raw-output '.channel' <<< "${row}")
+            platforms=$(jq --compact-output --arg chan "${channel}" \
+              '(.channels[] | select(.name == $chan) | .platforms)' \
+              "./apps/${app}/metadata.json")
+
+            # Native arm64 runners only make sense for channels that build
+            # *exclusively* linux/arm64 - a mixed amd64+arm64 channel still
+            # needs one job to produce both platforms, so it keeps QEMU.
+            if [[ "${platforms}" == '["linux/arm64"]' ]]; then
+              runs_on='ubuntu-24.04-arm'
+            else
+              runs_on='ubuntu-latest'
+            fi
+
+            rows+=("$(jq --compact-output --arg runsOn "${runs_on}" '. + {runsOn: $runsOn}' <<< "${row}")")
+          done < <(jq --compact-output '.[]' <<< '${{ inputs.imagesToBuild }}')
+
+          matrix=$(printf '%s\n' "${rows[@]}" | jq --slurp --compact-output '.')
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+
   build-and-test:
     name: Build and test
-    runs-on: ubuntu-latest
+    needs: ["prepare-matrix"]
+    runs-on: ${{ matrix.image.runsOn }}
     if: inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]'
     strategy:
       matrix:
-        image: ["${{ fromJson(inputs.imagesToBuild) }}"]
+        image: ["${{ fromJson(needs.prepare-matrix.outputs.matrix) }}"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v7.0.1
@@ -63,6 +107,19 @@ jobs:
             echo "chan_description=${chan_description}" >> $GITHUB_OUTPUT
           chan_platforms=$(jq --raw-output '.platforms | join(",")' <<< "${chan_config}") && \
             echo "chan_platforms=${chan_platforms}" >> $GITHUB_OUTPUT
+          chan_platform_count=$(jq --raw-output '.platforms | length' <<< "${chan_config}")
+          if [[ "${chan_platform_count}" == "1" ]]; then
+            # Single-platform channel: the "testing" build below can target
+            # that exact platform, matching the runner (native for arm64-only
+            # channels, amd64-on-amd64 otherwise).
+            chan_testing_platform=$(jq --raw-output '.platforms[0]' <<< "${chan_config}")
+          else
+            # Mixed-platform channel: --load can't materialize a multi-arch
+            # image locally, so testing keeps building linux/amd64 only, same
+            # as before this change.
+            chan_testing_platform="linux/amd64"
+          fi
+          echo "chan_testing_platform=${chan_testing_platform}" >> $GITHUB_OUTPUT
           chan_tests_enabled=$(jq --raw-output '.tests.enabled' <<< "${chan_config}") && \
             echo "chan_tests_enabled=${chan_tests_enabled}" >> $GITHUB_OUTPUT
           chan_tests_type=$(jq --raw-output '.tests.type' <<< "${chan_config}") && \
@@ -114,6 +171,9 @@ jobs:
         run: cue vet --schema '#Spec' ./apps/${{ matrix.image.app }}/metadata.json ./metadata.rules.cue
 
       - name: Setup QEMU
+        # Not needed on a native arm64 runner building an arm64-only channel
+        # for itself - QEMU exists here only to emulate a foreign arch.
+        if: ${{ runner.arch != 'ARM64' }}
         uses: docker/setup-qemu-action@v4.4.0
 
       - name: Setup Docker Buildx
@@ -135,7 +195,11 @@ jobs:
             VERSION=${{ matrix.image.version }}
             CHANNEL=${{ matrix.image.channel }}
           context: .
-          platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
+          # --load doesn't support multi-arch (https://github.com/docker/buildx/issues/290),
+          # so single-platform channels test on their real target platform -
+          # which matches the runner chosen above - and mixed-platform
+          # channels fall back to linux/amd64, as before.
+          platforms: ${{ steps.vars.outputs.chan_testing_platform }}
           file: ${{ steps.vars.outputs.chan_dockerfile }}
           load: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_testing }}
