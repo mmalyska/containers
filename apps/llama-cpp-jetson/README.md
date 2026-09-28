@@ -39,11 +39,19 @@ image.
 
 ## Testing
 
-CI's `goss` check is build-time only (binary exists, `--help` exits clean) —
-this image needs real Jetson/Tegra GPU hardware to do anything meaningful,
-which CI doesn't have. Real verification is deploying to `nv1` and checking
-`ggml_cuda_init` succeeds with full layer offload, same as any other spike
-pod in the home-ops plan referenced above.
+Neither the Dockerfile's own build-time check nor CI's `goss` check ever
+*executes* `llama-server` — both only check the binary exists and is
+executable (`test -x`). This isn't just caution: it's confirmed necessary.
+The base image's `/usr/lib/aarch64-linux-gnu/nvidia/libcuda.so.1` is a stub
+that only becomes a real library when NVIDIA's container runtime overlays
+the actual driver on real Jetson hardware — on any generic build/CI
+environment (tried both QEMU-emulated `amd64` and native `ubuntu-24.04-arm`)
+it stays a stub the dynamic linker can't resolve, and running
+`llama-server --help` fails with `error while loading shared libraries:
+...libcuda.so.1: file too short`. An earlier version of this Dockerfile ran
+that check and broke the build over it. Real verification is deploying to
+`nv1` and checking `ggml_cuda_init` succeeds with full layer offload, same
+as any other spike pod in the home-ops plan referenced above.
 
 ## Version tracking
 

@@ -29,6 +29,16 @@
 # incomplete asset set in CI and hard-failed the build instead of falling
 # back). nv1 serves this headlessly from k8s — no browser ever hits it — so
 # skip UI provisioning entirely rather than depend on either path.
+#
+# The build's own smoke check only proves the binary exists and is
+# executable (`test -x`) — it must NOT actually run llama-server. The base
+# image's /usr/lib/aarch64-linux-gnu/nvidia/libcuda.so.1 is a stub that only
+# becomes a real library when NVIDIA's container runtime overlays the actual
+# Jetson driver at container start on real hardware; in any generic build
+# environment (this CI runner included, regardless of arch) it's a stub the
+# dynamic linker can't resolve, so `llama-server --help` fails with "error
+# while loading shared libraries" there even though the binary is fine.
+# Functional verification only happens by deploying to nv1 itself.
 
 ARG BASE_IMAGE=ghcr.io/nvidia-ai-iot/llama_cpp:b8708-r36.4-tegra-aarch64-cu126-22.04@sha256:8fa5df9a76d3ddce89ade0ae67822afdfac27a5fe3a9e5eff7b6dfd72cd34f6b
 FROM ${BASE_IMAGE}
@@ -61,6 +71,6 @@ RUN set -eux; \
     cmake --build /tmp/llama-cpp-src/build --config Release --parallel "$(nproc)"; \
     cmake --install /tmp/llama-cpp-src/build --prefix /usr/local; \
     rm -rf /tmp/llama-cpp-src; \
-    llama-server --help >/dev/null
+    test -x /usr/local/bin/llama-server
 
 WORKDIR /workspace
