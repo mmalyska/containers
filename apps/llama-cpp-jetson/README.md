@@ -1,8 +1,8 @@
 # llama-cpp-jetson
 
-`llama-server` rebuilt from a current [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)
-release on top of NVIDIA's last known-good Jetson image for JetPack 6 / L4T
-r36.4 / CUDA 12.6 / Orin (`sm_87`):
+`llama-server` rebuilt from a pinned [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)
+release (`b9660`) on top of NVIDIA's last known-good Jetson image for
+JetPack 6 / L4T r36.4 / CUDA 12.6 / Orin (`sm_87`):
 `ghcr.io/nvidia-ai-iot/llama_cpp:b8708-r36.4-tegra-aarch64-cu126-22.04`.
 
 ## Why this exists
@@ -47,7 +47,10 @@ pod in the home-ops plan referenced above.
 
 ## Version tracking
 
-`ci/latest.sh` tracks the latest `ggml-org/llama.cpp` release tag (llama.cpp
-cuts one per merge to master, so this is effectively "current upstream").
-Pin the consumed image by digest as usual — this repo's tags are not
-immutable on their own.
+`ci/latest.sh` is deliberately **pinned to `b9660`**, not tracking upstream
+latest — that's the earliest release carrying both fixes this image exists
+for (see above). Bump it by hand when there's reason to (and re-run the
+plan's Test 1/Test 2 checks against the new build first); it will not move
+on its own via Renovate or the hourly rebuild poll. Pin the consumed image
+by digest at the home-ops end as usual — this repo's tags are not immutable
+on their own.

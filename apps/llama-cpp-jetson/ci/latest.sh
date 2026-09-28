@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Tracks the latest ggml-org/llama.cpp release tag (e.g. "b9829"). llama.cpp
-# cuts a release per merge to master, so this is effectively "current
-# upstream", matching this repo's usual rolling-tag convention — pin the
-# resulting image by digest at the consumer (home-ops) as usual.
-set -euo pipefail
-curl -fsSL https://api.github.com/repos/ggml-org/llama.cpp/releases/latest | jq -r '.tag_name'
+# Deliberately pinned, not tracking upstream latest. b9660 (2026-06-16) is
+# the earliest llama.cpp release that carries both fixes this image exists
+# for: ggml-org/llama.cpp#24234 (think-tag leak into `content`, merged
+# 2026-06-06) and the LFM2 tool-call double-escaping fix shipped in b9660
+# itself. Anything newer hasn't been vetted against nv1 — bump this by hand
+# (and re-run the plan's Test 1/Test 2 checks) rather than floating it.
+printf "%s" "b9660"

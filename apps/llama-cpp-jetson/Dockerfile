@@ -1,6 +1,6 @@
 # Rebuilds llama-server on top of the last known-good NVIDIA Jetson image for
-# nv1 (JetPack 6 / r36.4 / CUDA 12.6 / Orin sm_87), pinned to a newer llama.cpp
-# release tag. This exists because:
+# nv1 (JetPack 6 / r36.4 / CUDA 12.6 / Orin sm_87), pinned (via ci/latest.sh,
+# deliberately not tracking upstream) to llama.cpp b9660. This exists because:
 #   - ghcr.io/nvidia-ai-iot/llama_cpp has no cu126 build past b8708 (~April
 #     2026); the newer builds moved to cu129, an untested CUDA bump for this
 #     driver.
