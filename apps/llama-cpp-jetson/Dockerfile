@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+# ^ required for the --mount=type=cache (ccache) syntax below.
 # Rebuilds llama-server on top of the last known-good NVIDIA Jetson image for
 # nv1 (JetPack 6 / r36.4 / CUDA 12.6 / Orin sm_87), pinned (via ci/latest.sh,
 # deliberately not tracking upstream) to llama.cpp b9660. This exists because:
@@ -45,10 +47,20 @@
 # `-march=native` equivalent). This is built on a generic hosted arm64 CI
 # runner, not nv1 — with GGML_NATIVE left at its default, the binary used
 # CPU instructions Orin's Cortex-A78AE cores don't have and crashed with
-# SIGILL (exit 132) the moment it ran, confirmed first-hand on nv1. This
-# forces a portable baseline instead; reclaiming SIMD perf for Orin
-# specifically would mean pinning explicit -march flags for its real
-# feature set, not attempted here.
+# SIGILL (exit 132) the moment it ran, confirmed first-hand on nv1.
+#
+# GGML_CPU_KLEIDIAI=ON claws back some of what GGML_NATIVE=OFF gives up:
+# KleidiAI is a separate ARM CPU microkernel library that does its own
+# *runtime* feature detection (dotprod, i8mm, SVE) rather than baking a
+# fixed -march into the binary at build time. Safe on any build host, still
+# gets Orin-specific speedups for matmul-heavy CPU ops on nv1 at runtime.
+# Considered GGML_CPU_ALL_VARIANTS (compiles a full CPU backend per ARM
+# revision, picks the right one at load time) too, but it hard-requires
+# GGML_BACKEND_DL, which itself hard-requires BUILD_SHARED_LIBS=ON --
+# directly reintroducing the dynamic-linking bug class this Dockerfile
+# deliberately closed off (see BUILD_SHARED_LIBS below). Our workload is
+# mostly GPU-offloaded (-ngl 99) anyway, so KleidiAI's narrower, lower-risk
+# win was the better trade here.
 
 ARG BASE_IMAGE=ghcr.io/nvidia-ai-iot/llama_cpp:b8708-r36.4-tegra-aarch64-cu126-22.04@sha256:8fa5df9a76d3ddce89ade0ae67822afdfac27a5fe3a9e5eff7b6dfd72cd34f6b
 FROM ${BASE_IMAGE}
@@ -60,16 +72,31 @@ ARG CHANNEL
 ARG CUDA_ARCHITECTURES=87
 
 RUN set -eux; \
-    command -v git >/dev/null && command -v cmake >/dev/null
+    command -v git >/dev/null && command -v cmake >/dev/null; \
+    apt-get update && apt-get install -y --no-install-recommends ccache && rm -rf /var/lib/apt/lists/*
 
-RUN set -eux; \
+# ccache note: the object cache lives in a BuildKit cache mount
+# (--mount=type=cache), which is a *different* caching layer from this
+# repo's Docker layer cache (cache-to/cache-from: type=gha in the CI
+# workflow). Whether that mount's contents actually persist across separate
+# GitHub Actions runner instances depends on the buildx/GHA-cache-export
+# version's behavior for mount caches specifically, which isn't confirmed
+# here. Worst case if it doesn't persist: ccache starts cold every build,
+# identical to not having it at all -- not a regression, just a
+# possibly-unrealized speedup.
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
+    set -eux; \
     rm -rf /tmp/llama-cpp-src; \
     git clone --branch="${VERSION}" --depth=1 https://github.com/ggml-org/llama.cpp /tmp/llama-cpp-src; \
     cmake \
         -B /tmp/llama-cpp-src/build \
         -S /tmp/llama-cpp-src \
         -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+        -DCMAKE_CUDA_COMPILER_LAUNCHER=ccache \
         -DGGML_NATIVE=OFF \
+        -DGGML_CPU_KLEIDIAI=ON \
         -DGGML_CUDA=ON \
         -DGGML_CUDA_FA_ALL_QUANTS=ON \
         -DCMAKE_CUDA_ARCHITECTURES=${CUDA_ARCHITECTURES} \
@@ -81,7 +108,8 @@ RUN set -eux; \
         -DLLAMA_USE_PREBUILT_UI=OFF; \
     cmake --build /tmp/llama-cpp-src/build --config Release --parallel "$(nproc)"; \
     cmake --install /tmp/llama-cpp-src/build --prefix /usr/local; \
-    rm -rf /tmp/llama-cpp-src
+    rm -rf /tmp/llama-cpp-src; \
+    ccache -s
 
 # Kept as its own layer, separate from the (expensive) build above: any
 # future tweak to this check alone shouldn't invalidate the compile's cache
