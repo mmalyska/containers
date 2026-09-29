@@ -43,9 +43,45 @@ a generic hosted arm64 CI runner, not nv1. Left at its default, the
 resulting binary used CPU instructions Orin's Cortex-A78AE cores don't
 have and crashed on nv1 with `SIGILL` (exit 132) the instant it started —
 confirmed first-hand by deploying it. `GGML_NATIVE=OFF` forces a portable
-baseline instead. Reclaiming SIMD performance for Orin specifically would
-mean pinning explicit `-march`/`-mcpu` flags for its real feature set; not
-attempted here.
+baseline instead.
+
+`GGML_CPU_KLEIDIAI=ON` claws some of that back. [KleidiAI](https://github.com/ARM-software/kleidiai)
+is a separate ARM CPU microkernel library that does its own *runtime*
+feature detection (dotprod, i8mm, SVE) instead of baking a fixed `-march`
+into the binary at build time — safe on any build host, still gets
+Orin-specific speedups for matmul-heavy CPU ops on nv1 at runtime. We
+considered `GGML_CPU_ALL_VARIANTS` (compiles a full CPU backend per ARM
+revision, picks the right one at load time) too — it's a more complete fix
+for the same build-host-vs-target-host gap — but it hard-requires
+`GGML_BACKEND_DL`, which itself hard-requires `BUILD_SHARED_LIBS=ON`,
+directly reintroducing the dynamic-linking bug class this image closed off
+(see above). Our workload is mostly GPU-offloaded (`-ngl 99`) anyway, so
+KleidiAI's narrower, lower-risk win was the better trade. Worth
+revisiting `GGML_CPU_ALL_VARIANTS` later if CPU-bound work (MoE
+routing/gating, sampling) turns out to matter more than expected.
+
+We considered compiling natively **on nv1 itself** instead of this whole
+build-host-mismatch problem — `GGML_NATIVE=ON` on the real target would be
+strictly more optimal than either fix above. Decided against it: nv1 is a
+production device serving Hermes/Honcho, not a CI runner, and tying up its
+CPU for a compile (likely longer than this CI takes — Orin NX's cores are
+weaker per-core than a modern cloud arm64 CI instance) competes with
+whatever it's actually running. No pipeline exists for it either; building
+here keeps a reviewable PR + versioned digest instead of an ad-hoc on-device
+build.
+
+### ccache
+
+The compile step uses a BuildKit cache mount (`--mount=type=cache`) for
+ccache's object cache — a *different* caching layer from this repo's Docker
+layer cache (`cache-to`/`cache-from: type=gha` in the CI workflow). Whether
+that mount's contents actually persist across separate GitHub Actions
+runner instances depends on the buildx/GHA-cache-export version's behavior
+for mount caches specifically, which isn't confirmed here. Worst case if it
+doesn't persist: ccache starts cold every build, identical to not having it
+at all — not a regression, just a possibly-unrealized speedup. Check a
+build's logs (`ccache -s` output, printed at the end of the compile step)
+to see whether it's actually getting hits.
 
 ## Testing
 
