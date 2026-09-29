@@ -59,7 +59,7 @@ export const appChanges = async (core, apps, overrideChannels) => {
 const upstream = async (app, channel, stable) => {
   try {
     await fs.promises.access(`./apps/${app}/ci/latest.sh`);
-    let result = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`).toString();
+    let result = execSync(`./apps/${app}/ci/latest.sh "${channel}" "${stable}"`).toString().trim();
     if (result == 'null' || result == '') {
       return null;
     }

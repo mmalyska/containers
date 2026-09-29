@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1.7
 # ^ required for the --mount=type=cache (ccache) syntax below.
 # Rebuilds llama-server on top of the last known-good NVIDIA Jetson image for
-# nv1 (JetPack 6 / r36.4 / CUDA 12.6 / Orin sm_87), pinned (via ci/latest.sh,
-# deliberately not tracking upstream) to llama.cpp b9660. This exists because:
+# nv1 (JetPack 6 / r36.4 / CUDA 12.6 / Orin sm_87), tracking upstream
+# ggml-org/llama.cpp releases via ci/latest.sh (pin the consumed digest at
+# the home-ops end, as usual). This exists because:
 #   - ghcr.io/nvidia-ai-iot/llama_cpp has no cu126 build past b8708 (~April
 #     2026); the newer builds moved to cu129, an untested CUDA bump for this
 #     driver.
