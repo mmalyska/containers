@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 # ^ required for the --mount=type=cache (ccache) syntax below.
 # Rebuilds llama-server on top of the last known-good NVIDIA Jetson image for
 # nv1 (JetPack 6 / r36.4 / CUDA 12.6 / Orin sm_87), tracking upstream
