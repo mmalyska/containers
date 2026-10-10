@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:debian@sha256:c6b8c3c79b7378399a84f9f7b2bbff460b59ccc5594eba14131f48bdf6adaa92
+FROM mcr.microsoft.com/devcontainers/base:debian@sha256:6ee2b4097c75d33e9a94d941577a3286e5d629434fba384688b06daeeaaeac99
 USER vscode
 
 # [Optional] Uncomment this section to install additional OS packages.
