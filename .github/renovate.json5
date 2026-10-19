@@ -22,6 +22,15 @@
   ],
   packageRules: [
     {
+      description: 'Auto merge patch updates',
+      matchUpdateTypes: [
+        'patch',
+      ],
+      automerge: true,
+      automergeType: 'pr',
+      minimumReleaseAge: '3 days',
+    },
+    {
       matchDatasources: [
         'docker',
       ],
