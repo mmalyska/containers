@@ -1,0 +1,18 @@
+{
+  "app": "nextcloud",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Official Nextcloud fpm-alpine image with ffmpeg and exiftool",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}

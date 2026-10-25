@@ -1,0 +1,17 @@
+---
+# https://github.com/aelsabbahy/goss/blob/master/docs/manual.md#command
+command:
+  ffmpeg:
+    exec: ffmpeg -version
+    exit-status: 0
+  ffprobe:
+    exec: ffprobe -version
+    exit-status: 0
+  exiftool:
+    exec: exiftool -ver
+    exit-status: 0
+  imagick:
+    exec: php -m
+    exit-status: 0
+    stdout:
+      - imagick
