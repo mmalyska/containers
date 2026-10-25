@@ -15,3 +15,9 @@ command:
     exit-status: 0
     stdout:
       - imagick
+  # Samsung photos are HEIC. Alpine ships the ImageMagick HEIC coder in its own package.
+  imagick-heic:
+    exec: php -r 'echo implode(",", Imagick::queryFormats("HEIC"));'
+    exit-status: 0
+    stdout:
+      - HEIC
