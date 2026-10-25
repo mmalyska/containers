@@ -13,6 +13,7 @@ images to GitHub Container Registry (`ghcr.io/mmalyska/*`). Forked from
 | App | Description | Platforms |
 |-----|-------------|-----------|
 | `argocd-secret-replacer` | Replaces keys with values from secret providers (e.g. SOPS) for ArgoCD | amd64, arm64 |
+| `nextcloud` | Official Nextcloud fpm-alpine plus ffmpeg and exiftool (previews, Memories) | amd64 |
 | `s3-bucket-cleaner` | Cleans old files from AWS S3 buckets | amd64, arm64 |
 | `vintagestory` | VintageStory game server | amd64 |
 
