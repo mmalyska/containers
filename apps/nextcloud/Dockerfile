@@ -9,3 +9,7 @@ FROM docker.io/library/nextcloud:${VERSION}-fpm-alpine
 # transcode 4K HEVC on the GPU. libva-utils provides vainfo for checking it in the pod.
 # None of these ship in the official image.
 RUN apk add --no-cache ffmpeg exiftool imagemagick-heic intel-media-driver libva-utils
+
+# Memories' go-vod calls this instead of ffmpeg (memories.vod.ffmpeg): it fixes the order of
+# the HDR tone-mapping graph so 4K HLG video transcodes faster than real time.
+COPY --chmod=755 apps/nextcloud/memories-ffmpeg /usr/local/bin/memories-ffmpeg
