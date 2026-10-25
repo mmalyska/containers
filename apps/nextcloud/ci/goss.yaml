@@ -28,3 +28,14 @@ command:
     exit-status: 0
     stdout:
       - HEIC
+  # go-vod's HDR graph downloads 4K frames before scaling; the wrapper must put scale_vaapi first.
+  memories-ffmpeg-rewrite:
+    exec: MEMORIES_FFMPEG_REAL=echo /usr/local/bin/memories-ffmpeg -vf hwdownload,format=p010le,scale=w=854:h=854,zscale=t=linear
+    exit-status: 0
+    stdout:
+      - "fps=30,scale_vaapi=w=854:h=854:format=p010,hwdownload,format=p010le,zscale=t=linear"
+  memories-ffmpeg-passthrough:
+    exec: MEMORIES_FFMPEG_REAL=echo /usr/local/bin/memories-ffmpeg -vf scale_vaapi=w=1280:h=720:format=nv12
+    exit-status: 0
+    stdout:
+      - "-vf scale_vaapi=w=1280:h=720:format=nv12"

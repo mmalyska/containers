@@ -1,0 +1,34 @@
+#!/bin/sh
+# ffmpeg wrapper for Memories' go-vod (set memories.vod.ffmpeg to this file).
+#
+# For HDR video with VA-API, go-vod builds
+#   -vf hwdownload,format=p010le,scale=<opts>,zscale=...
+# which copies every full-size 4K 10-bit frame from the GPU to the CPU and only
+# then scales it down. On a 4K60 HLG clip that runs at ~0.4x real time, so every
+# HLS chunk takes longer to make than to play and the video stutters.
+#
+# Rewrite that one graph so the GPU scales first (scale_vaapi takes the same
+# w/h/force_original_aspect_ratio options), and cap the frame rate at 30 before
+# the expensive software tone mapping. Measured on a 4K60 HLG clip at 480p:
+# 0.4x -> 2.6x real time. Every other command line passes through untouched.
+#
+# MEMORIES_FFMPEG_REAL overrides the binary, so the rewrite can be tested.
+real="${MEMORIES_FFMPEG_REAL:-/usr/bin/ffmpeg}"
+
+n=$#
+while [ "$n" -gt 0 ]; do
+	a=$1
+	shift
+	n=$((n - 1))
+	if [ "$a" = "-vf" ] && [ "$n" -gt 0 ]; then
+		v=$1
+		shift
+		n=$((n - 1))
+		v=$(printf '%s' "$v" | sed -E 's/^(.*)hwdownload,format=p010le,scale=([^,]*),(zscale=.*)$/fps=30,\1scale_vaapi=\2:format=p010,hwdownload,format=p010le,\3/')
+		set -- "$@" "$a" "$v"
+	else
+		set -- "$@" "$a"
+	fi
+done
+
+exec "$real" "$@"
