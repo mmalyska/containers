@@ -15,6 +15,13 @@ command:
     exit-status: 0
     stdout:
       - imagick
+  # No GPU in CI, so only check that the VAAPI driver and vainfo are installed.
+  vaapi-driver:
+    exec: ls /usr/lib/dri/iHD_drv_video.so
+    exit-status: 0
+  vainfo:
+    exec: vainfo --help
+    exit-status: 0
   # Samsung photos are HEIC. Alpine ships the ImageMagick HEIC coder in its own package.
   imagick-heic:
     exec: php -r 'echo implode(",", Imagick::queryFormats("HEIC"));'
