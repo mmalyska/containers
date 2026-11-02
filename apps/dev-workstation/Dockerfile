@@ -15,6 +15,7 @@ RUN apt-get update \
       gettext-base \
       git \
       ipcalc \
+      libatomic1 \
       locales \
       nano \
       openssh-client \
