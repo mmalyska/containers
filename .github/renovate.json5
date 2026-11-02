@@ -93,13 +93,40 @@
       minimumReleaseAge: null,
     },
     {
-      // goss v0.4 renames its release assets, which the dev-workstation Dockerfile
-      // downloads by name, and CI and Taskfile.yml still use v0.3.21.
-      description: 'Hold goss at 0.3.x until CI moves to 0.4 too',
+      description: 'dev-workstation stays on Ubuntu 24.04, matching the devcontainer it replaces',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'ubuntu',
+      ],
+      matchFileNames: [
+        'apps/dev-workstation/Dockerfile',
+      ],
+      allowedVersions: '/^24\\./',
+    },
+    {
+      description: 'This constraint must match the Python of the dev-workstation image, not the newest release',
+      matchManagers: [
+        'renovate-config',
+      ],
+      matchDepTypes: [
+        'tool-constraint',
+      ],
+      matchDepNames: [
+        'python',
+      ],
+      enabled: false,
+    },
+    {
+      // Three places pin goss and must move together: apps/dev-workstation/Dockerfile,
+      // .github/workflows/action-image-build.yaml and Taskfile.yml. Only the Dockerfile
+      // has a Renovate annotation, so a bump here alone would leave the other two behind.
+      description: 'Pin goss to the version CI and Taskfile.yml use',
       matchPackageNames: [
         'goss-org/goss',
       ],
-      allowedVersions: '<0.4.0',
+      allowedVersions: '0.3.21',
     },
     {
       description: 'pip-compile owns this lock file: pip_requirements would raise a PR per locked package',
