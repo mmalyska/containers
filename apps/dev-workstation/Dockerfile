@@ -329,12 +329,14 @@ COPY --link --from=npm-tools /usr/local/lib/npm-tools /usr/local/lib/npm-tools
 
 # Symlinks instead of PATH entries: /etc/profile resets PATH in login shells.
 # /etc/skel is the seed for an empty home volume, so it must be final before useradd.
+# The base image gives UID 1000 to a default ubuntu user.
 RUN ln -s /opt/dev-tools/bin/pre-commit /opt/dev-tools/bin/yamllint /opt/dev-tools/bin/mkdocs /usr/local/bin/ \
     && ln -s ../lib/npm-tools/node_modules/.bin/claude ../lib/npm-tools/node_modules/.bin/prettier ../lib/npm-tools/node_modules/.bin/markdownlint /usr/local/bin/ \
     && ln -s /usr/bin/fdfind /usr/local/bin/fd \
     && echo 'eval "$(direnv hook bash)"' >> /etc/bash.bashrc \
     && git config --system init.defaultBranch main \
     && git config --system pull.rebase true \
+    && userdel --remove ubuntu \
     && useradd --create-home --uid 1000 --shell /bin/bash vscode \
     && mkdir /workspaces \
     && chown vscode:vscode /workspaces

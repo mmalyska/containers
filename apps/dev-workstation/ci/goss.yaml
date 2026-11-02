@@ -9,10 +9,15 @@ user:
     home: /home/vscode
     shell: /bin/bash
 
+  ubuntu:
+    exists: false
+
 file:
   /usr/bin/sudo:
     exists: false
   /etc/sudoers.d:
+    exists: false
+  /home/ubuntu:
     exists: false
   /home/linuxbrew:
     exists: false
