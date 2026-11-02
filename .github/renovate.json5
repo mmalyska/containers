@@ -93,6 +93,15 @@
       minimumReleaseAge: null,
     },
     {
+      // goss v0.4 renames its release assets, which the dev-workstation Dockerfile
+      // downloads by name, and CI and Taskfile.yml still use v0.3.21.
+      description: 'Hold goss at 0.3.x until CI moves to 0.4 too',
+      matchPackageNames: [
+        'goss-org/goss',
+      ],
+      allowedVersions: '<0.4.0',
+    },
+    {
       description: 'pip-compile owns this lock file: pip_requirements would raise a PR per locked package',
       matchManagers: [
         'pip_requirements',

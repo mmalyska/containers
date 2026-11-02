@@ -43,3 +43,44 @@ the same origin as the download, so it catches corruption rather than a compromi
 Unverified, because upstream publishes no checksum file: `age`, `egctl`, `direnv`, `cue`,
 `shellcheck`. `kubectl-browse-pvc` has none either; its hashes are copied from the krew index
 into the `Dockerfile`, so a version bump fails until they are updated by hand.
+
+## Image size
+
+The image is about 3.9 GB on amd64 and 3.8 GB on arm64, uncompressed. Sizes per tool in MB,
+measured on 2026-11-02 at the versions first pinned here, to help decide what to trim later.
+Renovate does not keep this table current. A dash means not measured on that platform.
+
+| Tool | amd64 | arm64 |
+|------|------:|------:|
+| Codex package | 517 | 459 |
+| coder | 440 | 424 |
+| Claude Code | 314 | - |
+| Go toolchain | 253 | 248 |
+| egctl | 250 | 241 |
+| argocd | 240 | 227 |
+| helmfile | 173 | 164 |
+| Python venv (`/opt/dev-tools`) | 166 | - |
+| node, npm | 161 | 161 |
+| cilium | 154 | 147 |
+| k9s | 126 | 118 |
+| terraform | 124 | 114 |
+| talosctl | 113 | 106 |
+| helm | 64 | 59 |
+| kubectl | 60 | 56 |
+| task | 50 | 47 |
+| stern | 48 | 45 |
+| chezmoi | 41 | 38 |
+| gh | 40 | 37 |
+| kubectl-browse-pvc | 37 | 35 |
+| cue | 24 | 22 |
+| kubelogin | 22 | 21 |
+| gitleaks | 21 | 20 |
+| shellcheck | 16 | 53 |
+| yq | 14 | 13 |
+| kustomize | 13 | 12 |
+| goss, dgoss | 13 | 13 |
+| bws | 12 | 11 |
+| age, age-keygen | 11 | 10 |
+| prettier | 10 | - |
+| direnv | 9 | 8 |
+| jq | 3 | 2 |
