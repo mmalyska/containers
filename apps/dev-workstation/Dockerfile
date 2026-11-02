@@ -153,7 +153,7 @@ RUN fetch "https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/a
 
 FROM fetcher AS bws
 # renovate: datasource=github-releases depName=bitwarden/sdk-sm versionTemplate=^bws-v(?<version>\d+\.\d+\.\d+)$
-ARG BWS_VERSION=2.0.0
+ARG BWS_VERSION=2.1.0
 RUN base="https://github.com/bitwarden/sdk-sm/releases/download/bws-v${BWS_VERSION}" \
     && fetch "$base/bws-$(uname -m)-unknown-linux-gnu-${BWS_VERSION}.zip" a.zip "$base/bws-sha256-checksums-${BWS_VERSION}.txt" \
     && unzip -q a.zip bws -d "$OUT/bin"
