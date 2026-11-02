@@ -20,6 +20,29 @@
       versioningTemplate: 'loose',
     },
   ],
+  customDatasources: {
+    // talosctl and cilium in dev-workstation must equal the versions pinned in
+    // home-ops, so home-ops is their source of truth instead of upstream releases.
+    'home-ops-talos': {
+      defaultRegistryUrlTemplate: 'https://raw.githubusercontent.com/mmalyska/home-ops/main/.taskfiles/talos/Taskfile.yaml',
+      format: 'yaml',
+      transformTemplates: [
+        '{"releases": [{"version": vars.TALOS_VERSION}]}',
+      ],
+    },
+    'home-ops-cilium': {
+      defaultRegistryUrlTemplate: 'https://raw.githubusercontent.com/mmalyska/home-ops/main/.taskfiles/cilium.yml',
+      format: 'yaml',
+      transformTemplates: [
+        '{"releases": [{"version": vars.CILIUM_VERSION}]}',
+      ],
+    },
+  },
+  'pip-compile': {
+    managerFilePatterns: [
+      '/^apps/dev-workstation/python/requirements\\.txt$/',
+    ],
+  },
   packageRules: [
     {
       description: 'Auto merge patch updates',
@@ -60,6 +83,36 @@
       matchPackageNames: [
         '/azerothcore/mod-/',
       ],
+    },
+    {
+      description: 'The home-ops pins carry no release date, so a release age would hold them forever',
+      matchDatasources: [
+        'custom.home-ops-talos',
+        'custom.home-ops-cilium',
+      ],
+      minimumReleaseAge: null,
+    },
+    {
+      description: 'pip-compile owns this lock file: pip_requirements would raise a PR per locked package',
+      matchManagers: [
+        'pip_requirements',
+      ],
+      matchFileNames: [
+        'apps/dev-workstation/python/**',
+      ],
+      enabled: false,
+    },
+    {
+      description: 'Compile the dev-workstation lock file for the Python of its base image',
+      matchManagers: [
+        'pip-compile',
+      ],
+      matchFileNames: [
+        'apps/dev-workstation/python/**',
+      ],
+      constraints: {
+        python: '==3.12.*',
+      },
     },
   ],
 }

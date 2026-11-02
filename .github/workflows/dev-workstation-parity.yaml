@@ -1,0 +1,27 @@
+---
+name: "Dev Workstation: Version Parity"
+
+on:
+  pull_request:
+    paths:
+      - "apps/dev-workstation/Dockerfile"
+      - "apps/dev-workstation/ci/check-version-parity.sh"
+      - ".github/workflows/dev-workstation-parity.yaml"
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    name: Compare talosctl and cilium with home-ops
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Compare pinned versions
+        run: ./apps/dev-workstation/ci/check-version-parity.sh

@@ -1,0 +1,118 @@
+---
+# Tools run with HOME=/tmp: several write to their home on start, and the check
+# that the home holds only the seed files runs at the same time as these.
+user:
+  vscode:
+    exists: true
+    uid: 1000
+    gid: 1000
+    home: /home/vscode
+    shell: /bin/bash
+
+  ubuntu:
+    exists: false
+
+file:
+  /usr/bin/sudo:
+    exists: false
+  /etc/sudoers.d:
+    exists: false
+  /home/ubuntu:
+    exists: false
+  /home/linuxbrew:
+    exists: false
+  /usr/share/bash-completion/bash_completion:
+    exists: true
+  /home/vscode:
+    exists: true
+    filetype: directory
+    owner: vscode
+  /workspaces:
+    exists: true
+    filetype: directory
+    owner: vscode
+
+command:
+  # Image shape
+  id -u: {exit-status: 0, stdout: ["/^1000$/"], timeout: 60000}
+  diff -r /etc/skel /home/vscode: {exit-status: 0, timeout: 60000}
+  test -z "$(find /usr/local /opt/dev-tools ! -user root -print -quit)": {exit-status: 0, timeout: 60000}
+  test -z "$(find /usr/local/bin -xtype l -print -quit)": {exit-status: 0, timeout: 60000}
+  for t in sudo krew kubectl-krew brew dotnet sops nc netcat wget puttygen sshd gpg wg gcc cc make; do if command -v "$t"; then exit 1; fi; done: {exit-status: 0, timeout: 60000}
+  locale -a | grep -qx en_US.utf8: {exit-status: 0, timeout: 60000}
+  git config --system pull.rebase: {exit-status: 0, stdout: ["true"], timeout: 60000}
+  grep -qF 'direnv hook bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}
+  test "$DISABLE_AUTOUPDATER" = 1: {exit-status: 0, timeout: 60000}
+
+  # Every Python package has a wheel for this platform and this Python, with the
+  # locked hash: pip resolves them again here and refuses anything else.
+  'env HOME=/tmp /opt/dev-tools/bin/pip install --quiet --no-cache-dir --dry-run --ignore-installed --only-binary :all: --require-hashes -r /opt/dev-tools/requirements.txt': {exit-status: 0, timeout: 180000}
+  /opt/dev-tools/bin/python -c "import material, mkdocs_git_revision_date_localized_plugin, mkdocs_autolinks_plugin": {exit-status: 0, timeout: 60000}
+
+  # Cluster, GitOps and infrastructure CLIs
+  env HOME=/tmp kubectl version --client: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp kubectl browse-pvc --help: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp helm version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp helmfile --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp kustomize version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp argocd version --client: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp kubectl oidc-login --help: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp k9s version --short: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp stern --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp egctl version --remote=false: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp talosctl version --client --short: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp cilium version --client: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp terraform version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp age --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp age-keygen --version: {exit-status: 0, timeout: 60000}
+
+  # Secrets, AI and workspace CLIs
+  env HOME=/tmp bws --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp coder version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp codex --version: {exit-status: 0, stdout: ["codex-cli"], timeout: 60000}
+  env HOME=/tmp codex --help: {exit-status: 0, timeout: 60000}
+  test -x /usr/local/lib/codex/bin/codex-exec-server -a -x /usr/local/lib/codex/bin/codex-code-mode-host -a -x /usr/local/lib/codex/codex-resources/bwrap -a -f /usr/local/lib/codex/codex-package.json: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp claude --version: {exit-status: 0, stdout: ["Claude Code"], timeout: 60000}
+  env HOME=/tmp chezmoi --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp direnv version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp gh --version: {exit-status: 0, timeout: 60000}
+
+  # Build, lint and docs tooling
+  env HOME=/tmp task --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp gitleaks version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp pre-commit --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp yamllint --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp prettier --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp markdownlint --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp mkdocs --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp shellcheck --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp node --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp npm --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp go version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp gofmt -h 2>&1 | grep -q usage: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp python3 --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp pip --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp python3 -m venv --help: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp cue version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp goss --version: {exit-status: 0, timeout: 60000}
+  test -x /usr/local/bin/dgoss: {exit-status: 0, timeout: 60000}
+
+  # Distro packages and base utilities
+  env HOME=/tmp jq --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp yq --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp git --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp ssh -V: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp ssh-keygen -t ed25519 -N "" -f /tmp/goss-ssh-key -q: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp ssh-agent sh -c 'test -S "$SSH_AUTH_SOCK"': {exit-status: 0, timeout: 60000}
+  env HOME=/tmp curl --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp unzip -v: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp tar --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp vim --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp nano --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp rg --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp fdfind --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp fd --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp envsubst --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp ipcalc 192.0.2.1/24: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp dig -v: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp nslookup -version: {exit-status: 0, timeout: 60000}
