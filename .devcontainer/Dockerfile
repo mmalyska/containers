@@ -13,6 +13,6 @@ RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/instal
 
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:$PATH
 RUN brew install \
-    go-task/tap/go-task \
+    go-task \
     gcc \
-    cue-lang/tap/cue
+    cue
