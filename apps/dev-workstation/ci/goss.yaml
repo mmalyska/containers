@@ -84,6 +84,8 @@ command:
   env HOME=/tmp yamllint --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp prettier --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp markdownlint --version: {exit-status: 0, timeout: 60000}
+  # re2js is overridden, and markdownlint's MD011 rule runs on it: lint a real violation.
+  d=$(mktemp -d) && printf '# Title\n\n(text)[link]\n' > "$d/a.md" && env HOME=/tmp markdownlint "$d/a.md" 2>&1 | grep -q MD011: {exit-status: 0, timeout: 60000}
   env HOME=/tmp mkdocs --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp shellcheck --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp node --version: {exit-status: 0, timeout: 60000}

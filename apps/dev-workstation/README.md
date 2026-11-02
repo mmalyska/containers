@@ -31,6 +31,13 @@ off, since `/usr/local` is not writable: update the image instead.
   ```
 
 - npm tools: `npm/package.json` and `npm/package-lock.json`.
+- npm overrides: `re2js` is pinned in `npm/package.json` because `markdownlint` 0.42.0 pins the
+  vulnerable 2.8.6 exactly. Remove the override once a `markdownlint-cli` release carries the fix.
+- Open advisories that do not apply, so these packages are not overridden:
+  - `minimatch` 10.2.6, from `markdownlint-cli`: GHSA-g3hv-75wg-m249 needs `optimizationLevel` 2 or
+    higher, and the CLI keeps the default of 1.
+  - `katex` 0.16.47, from `micromark-extension-math`: GHSA-238p-pmpm-9mq7 needs rendering, and
+    `markdownlint` only uses the math syntax extension, never the renderer.
 - `talosctl` and `cilium` follow `TALOS_VERSION` and `CILIUM_VERSION` in `home-ops`, not
   upstream. Renovate reads those values through custom datasources (`.github/renovate.json5`),
   and `ci/check-version-parity.sh` fails on PRs and in a weekly run if they differ.
