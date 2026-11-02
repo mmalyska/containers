@@ -65,6 +65,12 @@ Here's an example of how tags are created in the GitHub workflows, be careful wi
 | `myapp`                   | `develop`  | `false` | `false` | `myapp-develop:0.9.0`                      |
 | `myapp`                   | `develop`  | `false` | `false` | `myapp-develop:rolling`                    |
 
+### Multi-platform images
+
+A channel that lists several platforms in `metadata.json` builds each one on its own native runner, without QEMU, and runs its Goss tests on each platform's image. Each platform is pushed by digest, and once all of them have passed, a merged multi-arch manifest is published under the usual tags. If any platform fails, nothing is published for that channel and its existing tags do not move.
+
+Pull requests build and test every platform, but push nothing and do not create the merged manifest.
+
 ## Deprecations
 
 Containers here can be **deprecated** at any point, this could be for any reason described below.

@@ -122,7 +122,7 @@ How an app's version moves from upstream to a published image tag:
 - CUE schema at `metadata.rules.cue` validates all `metadata.json` — always run `cue vet` before committing
 - Goss tests in `ci/goss.yaml` validate container behavior after build
 - Config volume inside containers is hardcoded to `/config`
-- Multi-platform support via Docker Buildx (QEMU emulation for arm64)
+- Multi-platform channels build each platform on its own native runner, without QEMU (see [Multi-platform builds](#multi-platform-builds))
 - Images are pinned by SHA256 digest for immutability — use `image:tag@sha256:...` references
 - Renovate bot runs hourly and auto-creates PRs for dependency updates
 - Tool versions in Dockerfiles are marked with `# renovate:` comments for automated updates
@@ -136,6 +136,25 @@ How an app's version moves from upstream to a published image tag:
 | `pr-validate.yaml` | Pull requests | Validates changed apps, builds but does NOT push |
 | `release-manual.yaml` | Manual dispatch | Build specific apps or ALL, optionally push |
 | `scheduled-renovate.yaml` | Hourly | Runs Renovate dependency update bot |
+
+`action-image-build.yaml` is the reusable build workflow. `pr-validate.yaml` calls its local
+copy, so a PR tests its own changes to it, but only when the PR also changes something under
+`apps/`. The release workflows call `@main`, so a change to it takes effect for them on merge.
+
+### Multi-platform builds
+
+`prepare-matrix` in `action-image-build.yaml` expands each channel into one `build-and-test`
+job per platform: `ubuntu-latest` for `linux/amd64`, `ubuntu-24.04-arm` for `linux/arm64`.
+
+- **Single-platform channel**: the job builds, runs Goss, and pushes `:rolling` and `:<version>`.
+- **Multi-platform channel**: each platform's job builds natively, runs Goss on that platform's
+  image, pushes by digest with no tag, and uploads the digest as an artifact. `merge-manifests`
+  then publishes the merged manifest under `:rolling` and `:<version>`.
+- **Failure**: a platform that fails its build or Goss test uploads no digest, so `merge-manifests`
+  publishes nothing for that channel and the existing tags stay where they are. The platform
+  images already pushed stay in GHCR, untagged. Other apps are not affected.
+- **Without a push** (PRs): each platform builds and runs Goss, and `merge-manifests` is skipped,
+  so the merge is only exercised by a real push.
 
 ## Tag Generation
 
