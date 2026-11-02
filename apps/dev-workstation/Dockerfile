@@ -3,7 +3,7 @@
 # under $OUT, which the final stage copies to /usr/local. Nothing goes under
 # /home/vscode: the workspace mounts a volume over the home directory.
 
-FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 AS os
+FROM ubuntu:26.04@sha256:6a06111c3b0a8600feadb270aec771dc239bf407b25625f93f44ab00e11f4d3c AS os
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       bash-completion \
