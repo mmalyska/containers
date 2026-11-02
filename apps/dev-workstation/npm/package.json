@@ -5,5 +5,8 @@
     "@anthropic-ai/claude-code": "2.1.316",
     "markdownlint-cli": "0.50.0",
     "prettier": "3.9.10"
+  },
+  "overrides": {
+    "re2js": "2.8.7"
   }
 }
