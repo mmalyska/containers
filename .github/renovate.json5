@@ -93,6 +93,32 @@
       minimumReleaseAge: null,
     },
     {
+      description: 'dev-workstation stays on Ubuntu 24.04, matching the devcontainer it replaces',
+      matchDatasources: [
+        'docker',
+      ],
+      matchPackageNames: [
+        'ubuntu',
+      ],
+      matchFileNames: [
+        'apps/dev-workstation/Dockerfile',
+      ],
+      allowedVersions: '/^24\\./',
+    },
+    {
+      description: 'This constraint must match the Python of the dev-workstation image, not the newest release',
+      matchManagers: [
+        'renovate-config',
+      ],
+      matchDepTypes: [
+        'tool-constraint',
+      ],
+      matchDepNames: [
+        'python',
+      ],
+      enabled: false,
+    },
+    {
       // goss v0.4 renames its release assets, which the dev-workstation Dockerfile
       // downloads by name, and CI and Taskfile.yml still use v0.3.21.
       description: 'Hold goss at 0.3.x until CI moves to 0.4 too',
