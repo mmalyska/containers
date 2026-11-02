@@ -231,7 +231,7 @@ RUN fetch "https://github.com/cue-lang/cue/releases/download/${CUE_VERSION}/cue_
 # Same goss as CI and Taskfile.yml. Releases from v0.4 on name their assets differently.
 FROM fetcher AS goss
 # renovate: datasource=github-releases depName=goss-org/goss
-ARG GOSS_VERSION=v0.3.21
+ARG GOSS_VERSION=v0.3.23
 RUN base="https://github.com/goss-org/goss/releases/download/${GOSS_VERSION}" arch=$(dpkg --print-architecture) \
     && fetch "$base/goss-linux-${arch}" "$OUT/bin/goss" "$base/goss-linux-${arch}.sha256" \
     && fetch "$base/dgoss" "$OUT/bin/dgoss" "$base/dgoss.sha256"
