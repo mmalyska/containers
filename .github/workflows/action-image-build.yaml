@@ -241,8 +241,11 @@ jobs:
           IMAGE: ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_testing }}
           PLATFORM: ${{ matrix.image.platform }}
         run: |-
-          size=$(docker image inspect --format '{{.Size}}' "${IMAGE}" | numfmt --to=iec --suffix=B) || size=unknown
-          echo "Uncompressed size of ${IMAGE} (${PLATFORM}): ${size}" | tee -a "${GITHUB_STEP_SUMMARY}" || true
+          # Measured inside the image: `docker image inspect` reports the compressed
+          # size under the containerd image store, which only some runners use.
+          size=$( (docker run --rm --user 0 --entrypoint du "${IMAGE}" -sxk / 2>/dev/null || true) \
+            | cut -f1 | numfmt --from-unit=1024 --to=iec --suffix=B) || size=""
+          echo "Uncompressed size of ${IMAGE} (${PLATFORM}): ${size:-unknown}" | tee -a "${GITHUB_STEP_SUMMARY}" || true
 
       - name: Run Goss tests
         id: dgoss
