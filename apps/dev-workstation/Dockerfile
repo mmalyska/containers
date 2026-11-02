@@ -4,7 +4,6 @@
 # /home/vscode: the workspace mounts a volume over the home directory.
 
 FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 AS os
-ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       bash-completion \
@@ -28,6 +27,7 @@ RUN apt-get update \
     && locale-gen en_US.UTF-8 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
 FROM os AS fetcher
 ENV OUT=/out
