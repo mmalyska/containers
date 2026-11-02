@@ -1,0 +1,19 @@
+{
+  "app": "dev-workstation",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "Shared development image for Coder workspaces and devcontainers: cluster, GitOps, AI and lint tooling, non-root, no sudo",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": true,
+        "type": "cli"
+      }
+    }
+  ]
+}
