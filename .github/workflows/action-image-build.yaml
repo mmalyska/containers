@@ -37,51 +37,77 @@ on:
         type: string
 
 jobs:
-  # Native arm64 runners can only be picked per-job at scheduling time, before
-  # any step has run - so the platform lookup that decides "which runner"
-  # can't happen inside the matrixed build job itself (chicken-and-egg). This
-  # job does that lookup up front and hands the build job an enriched matrix
-  # that already carries a `runsOn` per image/channel.
+  # Native runners can only be picked per-job at scheduling time, before any
+  # step has run - so the platform lookup that decides "which runner" can't
+  # happen inside the matrixed build job itself (chicken-and-egg). This job does
+  # that lookup up front and expands each image/channel into one row per
+  # platform, each carrying its own `runsOn`. Channels with several platforms
+  # also get a row in `mergeMatrix` for the manifest merge after their builds.
   prepare-matrix:
     name: Assign runners
     runs-on: ubuntu-latest
     if: inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]'
     outputs:
       matrix: ${{ steps.enrich.outputs.matrix }}
+      mergeMatrix: ${{ steps.enrich.outputs.mergeMatrix }}
+      buildDate: ${{ steps.enrich.outputs.buildDate }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 1
 
-      - name: Assign a runner per image based on target platforms
+      - name: Assign a runner per platform of each image
         id: enrich
         shell: bash
+        env:
+          IMAGES_TO_BUILD: ${{ inputs.imagesToBuild }}
         run: |-
           rows=()
+          merge_rows=()
           while IFS= read -r row; do
             app=$(jq --raw-output '.app' <<< "${row}")
             channel=$(jq --raw-output '.channel' <<< "${row}")
-            platforms=$(jq --compact-output --arg chan "${channel}" \
-              '(.channels[] | select(.name == $chan) | .platforms)' \
+            chan_config=$(jq --compact-output --arg chan "${channel}" \
+              '[.channels[] | select(.name == $chan)] | first // {}' \
               "./apps/${app}/metadata.json")
 
-            # Native arm64 runners only make sense for channels that build
-            # *exclusively* linux/arm64 - a mixed amd64+arm64 channel still
-            # needs one job to produce both platforms, so it keeps QEMU.
-            if [[ "${platforms}" == '["linux/arm64"]' ]]; then
-              runs_on='ubuntu-24.04-arm'
+            # A channel with no platforms listed builds linux/amd64 on
+            # ubuntu-latest, which is what the runner's default platform gives.
+            platforms=$(jq --compact-output \
+              '.platforms // [] | unique | if length == 0 then ["linux/amd64"] else . end' \
+              <<< "${chan_config}")
+
+            if [[ "$(jq --raw-output '.stable == true' <<< "${chan_config}")" == true ]]; then
+              image_name="${app}"
             else
-              runs_on='ubuntu-latest'
+              image_name="${app}-${channel}"
             fi
 
-            rows+=("$(jq --compact-output --arg runsOn "${runs_on}" '. + {runsOn: $runsOn}' <<< "${row}")")
-          done < <(jq --compact-output '.[]' <<< '${{ inputs.imagesToBuild }}')
+            rows+=("$(jq --compact-output --arg imageName "${image_name}" --argjson platforms "${platforms}" '
+              . as $row | $platforms[] | . as $platform | $row + {
+                imageName: $imageName,
+                platform: $platform,
+                arch: ($platform | split("/")[1]),
+                runsOn: (if $platform == "linux/arm64" then "ubuntu-24.04-arm" else "ubuntu-latest" end),
+                multiPlatform: ($platforms | length > 1)
+              }' <<< "${row}")")
+
+            if [[ "$(jq 'length' <<< "${platforms}")" -gt 1 ]]; then
+              merge_rows+=("$(jq --compact-output --arg imageName "${image_name}" --argjson platforms "${platforms}" \
+                '. + {imageName: $imageName, platforms: $platforms}' <<< "${row}")")
+            fi
+          done < <(jq --compact-output '.[]' <<< "${IMAGES_TO_BUILD}")
 
           matrix=$(printf '%s\n' "${rows[@]}" | jq --slurp --compact-output '.')
-          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+          merge_matrix=$(printf '%s\n' "${merge_rows[@]}" | jq --slurp --compact-output '.')
+          {
+            echo "matrix=${matrix}"
+            echo "mergeMatrix=${merge_matrix}"
+            echo "buildDate=$(date --rfc-3339=seconds --utc)"
+          } >> $GITHUB_OUTPUT
 
   build-and-test:
-    name: Build and test
+    name: Build and test (${{ matrix.image.imageName }}, ${{ matrix.image.platform }})
     needs: ["prepare-matrix"]
     runs-on: ${{ matrix.image.runsOn }}
     if: inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]'
@@ -99,27 +125,10 @@ jobs:
         shell: bash
         run: |-
           container_base=$(jq '.base' ./apps/${{ matrix.image.app }}/metadata.json)
-          echo "chan_build_date=$(date --rfc-3339=seconds --utc)" >> $GITHUB_OUTPUT
 
           chan_config=$(jq --arg chan "${{ matrix.image.channel }}" '(.channels | .[] | select(.name == $chan))' ./apps/${{ matrix.image.app }}/metadata.json)
-          chan_stable=$(jq --raw-output '.stable' <<< "${chan_config}")
           chan_description=$(jq --raw-output '.description' <<< "${chan_config}") && \
             echo "chan_description=${chan_description}" >> $GITHUB_OUTPUT
-          chan_platforms=$(jq --raw-output '.platforms | join(",")' <<< "${chan_config}") && \
-            echo "chan_platforms=${chan_platforms}" >> $GITHUB_OUTPUT
-          chan_platform_count=$(jq --raw-output '.platforms | length' <<< "${chan_config}")
-          if [[ "${chan_platform_count}" == "1" ]]; then
-            # Single-platform channel: the "testing" build below can target
-            # that exact platform, matching the runner (native for arm64-only
-            # channels, amd64-on-amd64 otherwise).
-            chan_testing_platform=$(jq --raw-output '.platforms[0]' <<< "${chan_config}")
-          else
-            # Mixed-platform channel: --load can't materialize a multi-arch
-            # image locally, so testing keeps building linux/amd64 only, same
-            # as before this change.
-            chan_testing_platform="linux/amd64"
-          fi
-          echo "chan_testing_platform=${chan_testing_platform}" >> $GITHUB_OUTPUT
           chan_tests_enabled=$(jq --raw-output '.tests.enabled' <<< "${chan_config}") && \
             echo "chan_tests_enabled=${chan_tests_enabled}" >> $GITHUB_OUTPUT
           chan_tests_type=$(jq --raw-output '.tests.type' <<< "${chan_config}") && \
@@ -143,15 +152,27 @@ jobs:
             echo "chan_goss_config=./apps/${{ matrix.image.app }}/ci/goss.yaml" >> $GITHUB_OUTPUT
           fi
 
-          if [[ "${chan_stable}" == true ]]; then
-            echo "chan_tag_testing=${{ matrix.image.app }}:testingz" >> $GITHUB_OUTPUT
-            echo "chan_tag_rolling=${{ matrix.image.app }}:rolling" >> $GITHUB_OUTPUT
-            echo "chan_tag_version=${{ matrix.image.app }}:${{ matrix.image.version }}" >> $GITHUB_OUTPUT
+          image="ghcr.io/${{ github.repository_owner }}/${{ matrix.image.imageName }}"
+          echo "chan_tag_testing=${{ matrix.image.imageName }}:testingz" >> $GITHUB_OUTPUT
+
+          if [[ "${{ matrix.image.multiPlatform }}" == true ]]; then
+            # No tags here: this job pushes its platform by digest only, and
+            # merge-manifests publishes the tags once every platform passed.
+            if [[ "${{ inputs.pushImages }}" == true ]]; then
+              echo "chan_outputs=type=image,name=${image},push-by-digest=true,name-canonical=true,push=true" >> $GITHUB_OUTPUT
+            fi
+            # Platforms share a cache scope otherwise, and overwrite each other.
+            cache_scope=",scope=${{ matrix.image.imageName }}-${{ matrix.image.arch }}"
           else
-            echo "chan_tag_testing=${{ matrix.image.app }}-${{ matrix.image.channel }}:testingz" >> $GITHUB_OUTPUT
-            echo "chan_tag_rolling=${{ matrix.image.app }}-${{ matrix.image.channel }}:rolling" >> $GITHUB_OUTPUT
-            echo "chan_tag_version=${{ matrix.image.app }}-${{ matrix.image.channel }}:${{ matrix.image.version }}" >> $GITHUB_OUTPUT
+            {
+              echo "chan_tags<<EOF"
+              echo "${image}:rolling"
+              echo "${image}:${{ matrix.image.version }}"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
           fi
+          echo "chan_cache_from=type=gha${cache_scope}" >> $GITHUB_OUTPUT
+          echo "chan_cache_to=type=gha${cache_scope},mode=max" >> $GITHUB_OUTPUT
 
       - name: Setup Tools
         shell: bash
@@ -172,8 +193,9 @@ jobs:
 
       - name: Setup QEMU
         # Not needed on a native arm64 runner building an arm64-only channel
-        # for itself - QEMU exists here only to emulate a foreign arch.
-        if: ${{ runner.arch != 'ARM64' }}
+        # for itself, nor for a multi-platform channel, whose platforms each
+        # build on their own native runner.
+        if: ${{ runner.arch != 'ARM64' && matrix.image.multiPlatform != true }}
         uses: docker/setup-qemu-action@v4.4.0
 
       - name: Setup Docker Buildx
@@ -195,16 +217,13 @@ jobs:
             VERSION=${{ matrix.image.version }}
             CHANNEL=${{ matrix.image.channel }}
           context: .
-          # --load doesn't support multi-arch (https://github.com/docker/buildx/issues/290),
-          # so single-platform channels test on their real target platform -
-          # which matches the runner chosen above - and mixed-platform
-          # channels fall back to linux/amd64, as before.
-          platforms: ${{ steps.vars.outputs.chan_testing_platform }}
+          # Every matrix row is one platform, matching the runner chosen for it.
+          platforms: ${{ matrix.image.platform }}
           file: ${{ steps.vars.outputs.chan_dockerfile }}
           load: true
           tags: ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_testing }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: ${{ steps.vars.outputs.chan_cache_from }}
+          cache-to: ${{ steps.vars.outputs.chan_cache_to }}
 
       - name: Run Goss tests
         id: dgoss
@@ -219,7 +238,7 @@ jobs:
           CONTAINER_LOG_OUTPUT: goss_container_log_output
         run: dgoss run --entrypoint='' ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_testing }} ${{ steps.vars.outputs.chan_goss_args }}
 
-      - name: Build all platforms
+      - name: Build release image
         id: release
         uses: docker/build-push-action@v7.4.0
         with:
@@ -227,7 +246,7 @@ jobs:
             VERSION=${{ matrix.image.version }}
             CHANNEL=${{ matrix.image.channel }}
           labels: |-
-            ${{ steps.vars.outputs.chan_label_type }}.created="${{ steps.vars.outputs.chan_build_date }}"
+            ${{ steps.vars.outputs.chan_label_type }}.created="${{ needs.prepare-matrix.outputs.buildDate }}"
             ${{ steps.vars.outputs.chan_label_type }}.title="${{ matrix.image.app }} (${{ matrix.image.channel }})"
             ${{ steps.vars.outputs.chan_label_type }}.version="${{ matrix.image.version }}"
             ${{ steps.vars.outputs.chan_label_type }}.authors="Michał Małyska"
@@ -237,14 +256,33 @@ jobs:
             ${{ steps.vars.outputs.chan_label_type }}.documentation="https://github.com/mmalyska/containers/blob/main/apps/${{ matrix.image.app }}/README.md"
             ${{ steps.vars.outputs.chan_label_type }}.revision="${{ github.sha }}"
           context: .
-          platforms: ${{ steps.vars.outputs.chan_platforms }}
+          platforms: ${{ matrix.image.platform }}
           file: ${{ steps.vars.outputs.chan_dockerfile }}
-          push: ${{ inputs.pushImages == 'true' }}
-          tags: |-
-            ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_rolling }}
-            ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          push: ${{ inputs.pushImages == 'true' && matrix.image.multiPlatform != true }}
+          outputs: ${{ steps.vars.outputs.chan_outputs }}
+          tags: ${{ steps.vars.outputs.chan_tags }}
+          cache-from: ${{ steps.vars.outputs.chan_cache_from }}
+          cache-to: ${{ steps.vars.outputs.chan_cache_to }}
+
+      - name: Export platform digest
+        if: ${{ inputs.pushImages == 'true' && matrix.image.multiPlatform == true }}
+        shell: bash
+        env:
+          DIGEST: ${{ steps.release.outputs.digest }}
+        run: |-
+          [[ "${DIGEST}" == sha256:* ]]
+          mkdir -p "${RUNNER_TEMP}/digests"
+          echo "${DIGEST}" > "${RUNNER_TEMP}/digests/${{ matrix.image.arch }}"
+
+      - name: Upload platform digest
+        if: ${{ inputs.pushImages == 'true' && matrix.image.multiPlatform == true }}
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: digest--${{ matrix.image.imageName }}--${{ matrix.image.arch }}
+          path: ${{ runner.temp }}/digests/${{ matrix.image.arch }}
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
 
       - name: Build successful
         id: build-success
@@ -255,7 +293,105 @@ jobs:
 
       - name: Build failed
         id: build-failed
-        if: ${{ always() && (steps.release.outcome == 'failure' || steps.dgoss.outcome == 'failure') }}
+        if: ${{ always() && (steps.release.outcome == 'failure' || steps.dgoss.outcome == 'failure' || (matrix.image.multiPlatform == true && failure())) }}
+        run: |-
+          echo "message=💥 ${{ matrix.image.app }}-${{ matrix.image.channel }} (${{ matrix.image.version }})${{ matrix.image.multiPlatform == true && format(' {0}', matrix.image.platform) || '' }}" >> $GITHUB_OUTPUT
+          echo "color=0xFF0000" >> $GITHUB_OUTPUT
+
+      - name: Send Discord Webhook
+        uses: sarisia/actions-status-discord@v1.16.0
+        # A passing platform of a multi-platform channel has published nothing
+        # yet: merge-manifests reports that channel's success.
+        if: ${{ always() && inputs.sendNotification == 'true' && (matrix.image.multiPlatform != true || job.status != 'success') }}
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: ${{ steps.build-failed.outputs.message || steps.build-success.outputs.message }}
+          color: ${{ steps.build-failed.outputs.color }}
+          username: GitHub Actions
+
+  # Publishes the tags of a multi-platform channel, once every platform has been
+  # built, tested and pushed by digest. `!cancelled()` rather than the default
+  # success(): with fail-fast off, one app's failed platform marks the whole
+  # build matrix as failed, and that must not hold back other apps. Each channel
+  # checks its own digests instead, and publishes nothing if one is missing.
+  merge-manifests:
+    name: Merge manifest (${{ matrix.image.imageName }})
+    needs: ["prepare-matrix", "build-and-test"]
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && inputs.pushImages == 'true' && needs.prepare-matrix.result == 'success' && needs.prepare-matrix.outputs.mergeMatrix != '[]' }}
+    strategy:
+      matrix:
+        image: ["${{ fromJson(needs.prepare-matrix.outputs.mergeMatrix) }}"]
+      fail-fast: false
+    steps:
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v4.4.1
+
+      - name: Setup GHCR
+        uses: docker/login-action@v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download platform digests
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: digest--${{ matrix.image.imageName }}--*
+          path: ${{ runner.temp }}/digests
+          merge-multiple: true
+
+      - name: Publish merged manifest
+        id: merge
+        shell: bash
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.image.imageName }}
+          VERSION: ${{ matrix.image.version }}
+          PLATFORMS: ${{ toJson(matrix.image.platforms) }}
+        run: |-
+          expected=$(jq --compact-output 'sort' <<< "${PLATFORMS}")
+          platforms_of() {
+            jq --compact-output '[.manifests[].platform | select(.os != "unknown") | "\(.os)/\(.architecture)"] | sort'
+          }
+
+          sources=()
+          while IFS= read -r platform; do
+            digest_file="${RUNNER_TEMP}/digests/${platform#linux/}"
+            if [[ ! -s "${digest_file}" ]]; then
+              echo "::error::No digest for ${platform} of ${IMAGE}: its build or test failed, not publishing"
+              exit 1
+            fi
+            sources+=("${IMAGE}@$(cat "${digest_file}")")
+          done < <(jq --raw-output '.[]' <<< "${PLATFORMS}")
+
+          tags=(--tag "${IMAGE}:rolling" --tag "${IMAGE}:${VERSION}")
+
+          planned=$(docker buildx imagetools create --dry-run "${tags[@]}" "${sources[@]}")
+          if [[ "$(platforms_of <<< "${planned}")" != "${expected}" ]]; then
+            echo "::error::Planned manifest of ${IMAGE} does not list ${expected}, not publishing"
+            exit 1
+          fi
+
+          docker buildx imagetools create "${tags[@]}" "${sources[@]}"
+
+          rolling=$(docker buildx imagetools inspect --raw "${IMAGE}:rolling")
+          version=$(docker buildx imagetools inspect --raw "${IMAGE}:${VERSION}")
+          if [[ "$(platforms_of <<< "${rolling}")" != "${expected}" || "${rolling}" != "${version}" ]]; then
+            echo "::error::Published tags of ${IMAGE} do not match the planned manifest"
+            exit 1
+          fi
+          docker buildx imagetools inspect "${IMAGE}:rolling"
+
+      - name: Merge successful
+        id: merge-success
+        if: ${{ always() && steps.merge.outcome == 'success' }}
+        run: |-
+          echo "message=🎉 ${{ matrix.image.app }}-${{ matrix.image.channel }} (${{ matrix.image.version }})" >> $GITHUB_OUTPUT
+          echo "color=0x00FF00" >> $GITHUB_OUTPUT
+
+      - name: Merge failed
+        id: merge-failed
+        if: ${{ failure() }}
         run: |-
           echo "message=💥 ${{ matrix.image.app }}-${{ matrix.image.channel }} (${{ matrix.image.version }})" >> $GITHUB_OUTPUT
           echo "color=0xFF0000" >> $GITHUB_OUTPUT
@@ -265,8 +401,8 @@ jobs:
         if: ${{ always() && inputs.sendNotification == 'true' }}
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          title: ${{ steps.build-failed.outputs.message || steps.build-success.outputs.message }}
-          color: ${{ steps.build-failed.outputs.color }}
+          title: ${{ steps.merge-failed.outputs.message || steps.merge-success.outputs.message }}
+          color: ${{ steps.merge-failed.outputs.color }}
           username: GitHub Actions
 
   # Summarize matrix https://github.community/t/status-check-for-a-matrix-jobs/127354/7
@@ -275,8 +411,9 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-and-test
+      - merge-manifests
     if: ${{ always() }}
     steps:
       - name: Check build matrix status
-        if: ${{ (inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]') && (needs.build-and-test.result != 'success') }}
+        if: ${{ (inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]') && (needs.build-and-test.result != 'success' || (needs.merge-manifests.result != 'success' && needs.merge-manifests.result != 'skipped')) }}
         run: exit 1
