@@ -160,7 +160,7 @@ RUN base="https://github.com/bitwarden/sdk-sm/releases/download/bws-v${BWS_VERSI
 
 FROM fetcher AS coder
 # renovate: datasource=github-releases depName=coder/coder
-ARG CODER_VERSION=v2.38.0
+ARG CODER_VERSION=v2.38.5
 RUN base="https://github.com/coder/coder/releases/download/${CODER_VERSION}" v="${CODER_VERSION#v}" \
     && fetch "$base/coder_${v}_linux_$(dpkg --print-architecture).tar.gz" a.tgz "$base/coder_${v}_checksums.txt" \
     && tar --no-same-owner -xzf a.tgz -C "$OUT/bin" ./coder
