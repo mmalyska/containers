@@ -217,6 +217,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build container image for testing
+        id: build-test
         uses: docker/build-push-action@v7.4.0
         with:
           build-args: |-
@@ -230,6 +231,18 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_testing }}
           cache-from: ${{ steps.vars.outputs.chan_cache_from }}
           cache-to: ${{ steps.vars.outputs.chan_cache_to }}
+
+      - name: Report image size
+        # Report only: this never fails the job.
+        if: ${{ steps.build-test.outcome == 'success' }}
+        continue-on-error: true
+        shell: bash
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_testing }}
+          PLATFORM: ${{ matrix.image.platform }}
+        run: |-
+          size=$(docker image inspect --format '{{.Size}}' "${IMAGE}" | numfmt --to=iec --suffix=B) || size=unknown
+          echo "Uncompressed size of ${IMAGE} (${PLATFORM}): ${size}" | tee -a "${GITHUB_STEP_SUMMARY}" || true
 
       - name: Run Goss tests
         id: dgoss
