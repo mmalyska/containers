@@ -62,17 +62,20 @@
       ],
     },
     {
-      description: 'dev-workstation stays on Ubuntu 24.04, matching the devcontainer it replaces',
+      description: 'Every dev-workstation tool bump is a full rebuild and a new digest, so bump them together once a week',
+      matchFileNames: [
+        'apps/dev-workstation/**',
+      ],
       matchDatasources: [
-        'docker',
+        '!docker',
       ],
       matchPackageNames: [
-        'ubuntu',
+        '!goss-org/goss',
       ],
-      matchFileNames: [
-        'apps/dev-workstation/Dockerfile',
+      groupName: 'dev-workstation tools',
+      schedule: [
+        'before 6am on monday',
       ],
-      allowedVersions: '/^24\\./',
     },
     {
       description: 'Bump goss in apps/dev-workstation/mise.toml, action-image-build.yaml and Taskfile.yml in one PR',
