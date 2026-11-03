@@ -9,7 +9,8 @@ ARG MISE_VERSION=v2026.10.25
 LABEL devcontainer.metadata='[{"remoteUser":"vscode","containerUser":"vscode"}]'
 
 # /opt/mise is not writable by vscode, so Claude Code could not update itself.
-ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 MISE_DATA_DIR=/opt/mise DISABLE_AUTOUPDATER=1
+# mise reads image tools from there and installs new ones into the home volume.
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 MISE_SHARED_INSTALL_DIRS=/opt/mise/installs DISABLE_AUTOUPDATER=1
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -39,7 +40,7 @@ RUN case "$(dpkg --print-architecture)" in amd64) arch=x64 ;; arm64) arch=arm64 
     && curl -fsSL --retry 5 "$base/$asset" -o /usr/local/bin/mise \
     && echo "$(curl -fsSL --retry 5 "$base/SHASUMS256.txt" | grep "$asset\$" | cut -d' ' -f1)  /usr/local/bin/mise" | sha256sum --check --quiet \
     && chmod 755 /usr/local/bin/mise \
-    && mise install --yes \
+    && MISE_DATA_DIR=/opt/mise mise install --yes \
     && rm -rf /opt/mise/downloads /root/.cache /root/.local
 
 # Symlinks instead of PATH entries: /etc/profile resets PATH in login shells.
@@ -47,7 +48,7 @@ RUN case "$(dpkg --print-architecture)" in amd64) arch=x64 ;; arm64) arch=arm64 
 # The base image gives UID 1000 to a default ubuntu user.
 RUN ln -s /opt/mise/shims/* /usr/local/bin/ \
     && ln -s /usr/bin/fdfind /usr/local/bin/fd \
-    && echo 'eval "$(direnv hook bash)"' >> /etc/bash.bashrc \
+    && printf '%s\n' 'eval "$(mise activate bash)"' 'eval "$(direnv hook bash)"' >> /etc/bash.bashrc \
     && git config --system init.defaultBranch main \
     && git config --system pull.rebase true \
     && userdel --remove ubuntu \

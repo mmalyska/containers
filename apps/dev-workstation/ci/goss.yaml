@@ -42,10 +42,13 @@ command:
   locale -a | grep -qx en_US.utf8: {exit-status: 0, timeout: 60000}
   git config --system pull.rebase: {exit-status: 0, stdout: ["true"], timeout: 60000}
   grep -qF 'direnv hook bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}
+  grep -qF 'mise activate bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}
   test "$DISABLE_AUTOUPDATER" = 1: {exit-status: 0, timeout: 60000}
 
   /opt/mise/installs/pypi-mkdocs/latest/mkdocs/bin/python -c "import material, mkdocs_git_revision_date_localized_plugin, mkdocs_autolinks_plugin": {exit-status: 0, timeout: 60000}
   env HOME=/tmp mise --version: {exit-status: 0, timeout: 60000}
+  # vscode can install tools although /opt/mise is read-only.
+  env HOME=/tmp/goss-mise MISE_YES=1 mise exec shfmt@3.10.0 -- shfmt --version: {exit-status: 0, stdout: ["v3.10.0"], timeout: 180000}
 
   # Cluster, GitOps and infrastructure CLIs
   env HOME=/tmp kubectl version --client: {exit-status: 0, timeout: 60000}
