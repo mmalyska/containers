@@ -6,11 +6,15 @@ ARG CHANNEL
 # renovate: datasource=github-releases depName=jdx/mise
 ARG MISE_VERSION=v2026.10.25
 
-LABEL devcontainer.metadata='[{"remoteUser":"vscode","containerUser":"vscode"}]'
+LABEL devcontainer.metadata='[{"remoteUser":"vscode","containerUser":"vscode","mounts":["source=dev-workstation-cache,target=/cache,type=volume"]}]'
 
 # /opt/mise is not writable by vscode, so Claude Code could not update itself.
 # mise reads image tools from there and installs new ones into the home volume.
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 MISE_SHARED_INSTALL_DIRS=/opt/mise/installs DISABLE_AUTOUPDATER=1
+
+# Rebuildable caches stay off the backed-up volumes. Only /cache itself can be relied on: a
+# mount there starts empty, and Terraform fails if its plugin cache directory is missing.
+ENV XDG_CACHE_HOME=/cache GOMODCACHE=/cache/go/mod npm_config_cache=/cache/npm TF_PLUGIN_CACHE_DIR=/cache UV_LINK_MODE=copy
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -53,9 +57,9 @@ RUN ln -s /opt/mise/shims/* /usr/local/bin/ \
     && git config --system pull.rebase true \
     && userdel --remove ubuntu \
     && useradd --create-home --uid 1000 --shell /bin/bash vscode \
-    && mkdir /workspaces \
-    && chown vscode:vscode /workspaces
+    && mkdir /workspaces /cache \
+    && chown vscode:vscode /workspaces /cache
 
 # Numeric, so a pod with runAsNonRoot can verify it.
 USER 1000:1000
-WORKDIR /home/vscode
+WORKDIR /workspaces

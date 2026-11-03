@@ -27,6 +27,10 @@ file:
     exists: true
     filetype: directory
     owner: vscode
+  /cache:
+    exists: true
+    filetype: directory
+    owner: vscode
   /workspaces:
     exists: true
     filetype: directory
@@ -44,6 +48,9 @@ command:
   grep -qF 'direnv hook bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}
   grep -qF 'mise activate bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}
   test "$DISABLE_AUTOUPDATER" = 1: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp go env GOCACHE: {exit-status: 0, stdout: ["/^/cache/go-build$/"], timeout: 60000}
+  env HOME=/tmp go env GOMODCACHE: {exit-status: 0, stdout: ["/^/cache/go/mod$/"], timeout: 60000}
+  test "$npm_config_cache" = /cache/npm -a "$TF_PLUGIN_CACHE_DIR" = /cache: {exit-status: 0, timeout: 60000}
 
   /opt/mise/installs/pypi-mkdocs/latest/mkdocs/bin/python -c "import material, mkdocs_git_revision_date_localized_plugin, mkdocs_autolinks_plugin": {exit-status: 0, timeout: 60000}
   env HOME=/tmp mise --version: {exit-status: 0, timeout: 60000}
