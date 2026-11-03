@@ -10,11 +10,7 @@ LABEL devcontainer.metadata='[{"remoteUser":"vscode","containerUser":"vscode","m
 
 # /opt/mise is not writable by vscode, so Claude Code could not update itself.
 # mise reads image tools from there and installs new ones into the home volume.
-ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 MISE_SHARED_INSTALL_DIRS=/opt/mise/installs DISABLE_AUTOUPDATER=1
-
-# Rebuildable caches stay off the backed-up volumes. Only /cache itself can be relied on: a
-# mount there starts empty, and Terraform fails if its plugin cache directory is missing.
-ENV XDG_CACHE_HOME=/cache GOMODCACHE=/cache/go/mod npm_config_cache=/cache/npm TF_PLUGIN_CACHE_DIR=/cache UV_LINK_MODE=copy
+ENV MISE_SHARED_INSTALL_DIRS=/opt/mise/installs DISABLE_AUTOUPDATER=1
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -37,6 +33,8 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+
 COPY apps/dev-workstation/mise.toml /etc/mise/config.toml
 
 RUN case "$(dpkg --print-architecture)" in amd64) arch=x64 ;; arm64) arch=arm64 ;; esac \
@@ -46,6 +44,11 @@ RUN case "$(dpkg --print-architecture)" in amd64) arch=x64 ;; arm64) arch=arm64 
     && chmod 755 /usr/local/bin/mise \
     && MISE_DATA_DIR=/opt/mise mise install --yes \
     && rm -rf /opt/mise/downloads /root/.cache /root/.local
+
+# Set after the install, which would otherwise leave its downloads in the image. Rebuildable
+# caches stay off the backed-up volumes. Only /cache itself can be relied on: a mount there
+# starts empty, and Terraform fails if its plugin cache directory is missing.
+ENV XDG_CACHE_HOME=/cache GOMODCACHE=/cache/go/mod npm_config_cache=/cache/npm TF_PLUGIN_CACHE_DIR=/cache UV_LINK_MODE=copy
 
 # Symlinks instead of PATH entries: /etc/profile resets PATH in login shells.
 # /etc/skel is the seed for an empty home volume, so it must be final before useradd.
