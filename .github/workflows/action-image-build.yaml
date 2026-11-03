@@ -171,14 +171,8 @@ jobs:
               echo "EOF"
             } >> $GITHUB_OUTPUT
           fi
-          # dev-workstation is about 3 GB per platform: mode=max would keep every
-          # intermediate layer of it and evict the other apps' caches.
-          cache_mode=max
-          if [[ "${{ matrix.image.app }}" == dev-workstation ]]; then
-            cache_mode=min
-          fi
           echo "chan_cache_from=type=gha${cache_scope}" >> $GITHUB_OUTPUT
-          echo "chan_cache_to=type=gha${cache_scope},mode=${cache_mode}" >> $GITHUB_OUTPUT
+          echo "chan_cache_to=type=gha${cache_scope},mode=max" >> $GITHUB_OUTPUT
 
       - name: Setup Tools
         shell: bash
@@ -191,6 +185,7 @@ jobs:
         if: ${{ steps.vars.outputs.chan_tests_enabled == 'true' }}
         uses: e1himself/goss-installation-action@v1.3.0
         with:
+          # renovate: datasource=github-tags depName=goss-org/goss
           version: v0.3.21
 
       - name: Validate image metadata
