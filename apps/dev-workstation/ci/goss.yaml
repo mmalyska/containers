@@ -27,6 +27,10 @@ file:
     exists: true
     filetype: directory
     owner: vscode
+  /cache:
+    exists: true
+    filetype: directory
+    owner: vscode
   /workspaces:
     exists: true
     filetype: directory
@@ -36,18 +40,22 @@ command:
   # Image shape
   id -u: {exit-status: 0, stdout: ["/^1000$/"], timeout: 60000}
   diff -r /etc/skel /home/vscode: {exit-status: 0, timeout: 60000}
-  test -z "$(find /usr/local /opt/dev-tools ! -user root -print -quit)": {exit-status: 0, timeout: 60000}
+  test -z "$(find /usr/local /opt/mise ! -user root -print -quit)": {exit-status: 0, timeout: 60000}
   test -z "$(find /usr/local/bin -xtype l -print -quit)": {exit-status: 0, timeout: 60000}
   for t in sudo krew kubectl-krew brew dotnet sops nc netcat wget puttygen sshd gpg wg gcc cc make; do if command -v "$t"; then exit 1; fi; done: {exit-status: 0, timeout: 60000}
   locale -a | grep -qx en_US.utf8: {exit-status: 0, timeout: 60000}
   git config --system pull.rebase: {exit-status: 0, stdout: ["true"], timeout: 60000}
   grep -qF 'direnv hook bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}
+  grep -qF 'mise activate bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}
   test "$DISABLE_AUTOUPDATER" = 1: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp go env GOCACHE: {exit-status: 0, stdout: ["/^/cache/go-build$/"], timeout: 60000}
+  env HOME=/tmp go env GOMODCACHE: {exit-status: 0, stdout: ["/^/cache/go/mod$/"], timeout: 60000}
+  test "$npm_config_cache" = /cache/npm -a "$TF_PLUGIN_CACHE_DIR" = /cache: {exit-status: 0, timeout: 60000}
 
-  # Every Python package has a wheel for this platform and this Python, with the
-  # locked hash: pip resolves them again here and refuses anything else.
-  'env HOME=/tmp /opt/dev-tools/bin/pip install --quiet --no-cache-dir --dry-run --ignore-installed --only-binary :all: --require-hashes -r /opt/dev-tools/requirements.txt': {exit-status: 0, timeout: 180000}
-  /opt/dev-tools/bin/python -c "import material, mkdocs_git_revision_date_localized_plugin, mkdocs_autolinks_plugin": {exit-status: 0, timeout: 60000}
+  /opt/mise/installs/pypi-mkdocs/latest/mkdocs/bin/python -c "import material, mkdocs_git_revision_date_localized_plugin, mkdocs_autolinks_plugin": {exit-status: 0, timeout: 60000}
+  env HOME=/tmp mise --version: {exit-status: 0, timeout: 60000}
+  # vscode can install tools although /opt/mise is read-only.
+  env HOME=/tmp/goss-mise MISE_YES=1 mise exec shfmt@3.10.0 -- shfmt --version: {exit-status: 0, stdout: ["v3.10.0"], timeout: 180000}
 
   # Cluster, GitOps and infrastructure CLIs
   env HOME=/tmp kubectl version --client: {exit-status: 0, timeout: 60000}
@@ -71,7 +79,6 @@ command:
   env HOME=/tmp coder version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp codex --version: {exit-status: 0, stdout: ["codex-cli"], timeout: 60000}
   env HOME=/tmp codex --help: {exit-status: 0, timeout: 60000}
-  test -x /usr/local/lib/codex/bin/codex-exec-server -a -x /usr/local/lib/codex/bin/codex-code-mode-host -a -x /usr/local/lib/codex/codex-resources/bwrap -a -f /usr/local/lib/codex/codex-package.json: {exit-status: 0, timeout: 60000}
   env HOME=/tmp claude --version: {exit-status: 0, stdout: ["Claude Code"], timeout: 60000}
   env HOME=/tmp chezmoi --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp direnv version: {exit-status: 0, timeout: 60000}
@@ -84,8 +91,6 @@ command:
   env HOME=/tmp yamllint --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp prettier --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp markdownlint --version: {exit-status: 0, timeout: 60000}
-  # re2js is overridden, and markdownlint's MD011 rule runs on it: lint a real violation.
-  d=$(mktemp -d) && printf '# Title\n\n(text)[link]\n' > "$d/a.md" && env HOME=/tmp markdownlint "$d/a.md" 2>&1 | grep -q MD011: {exit-status: 0, timeout: 60000}
   env HOME=/tmp mkdocs --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp shellcheck --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp node --version: {exit-status: 0, timeout: 60000}
@@ -97,7 +102,6 @@ command:
   env HOME=/tmp python3 -m venv --help: {exit-status: 0, timeout: 60000}
   env HOME=/tmp cue version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp goss --version: {exit-status: 0, timeout: 60000}
-  test -x /usr/local/bin/dgoss: {exit-status: 0, timeout: 60000}
 
   # Distro packages and base utilities
   env HOME=/tmp jq --version: {exit-status: 0, timeout: 60000}

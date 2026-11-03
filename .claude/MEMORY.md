@@ -47,3 +47,4 @@ cue vet --schema '#Spec' ./apps/<name>/metadata.json metadata.rules.cue
 
 **Never store secrets, tokens, credentials, or sensitive data in this file or any committed file.**
 Use GitHub Secrets for CI/CD credentials. Use `.private/` (gitignored) for local sensitive files.
+- [No Claude attribution](feedback-no-claude-attribution.md) — no Co-Authored-By trailers or "Generated with" lines in commits or PRs
