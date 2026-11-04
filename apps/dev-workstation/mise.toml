@@ -34,6 +34,8 @@ shellcheck = "0.11.0"
 cue = "0.17.1"
 goss = "0.3.21"
 jq = "1.8.2"
+# rsync has no mise registry entry; the conda backend installs conda-forge's build.
+"conda:rsync" = "3.5.1"
 yq = "4.54.1"
 node = "26.13.0"
 go = "1.27.3"

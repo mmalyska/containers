@@ -106,6 +106,7 @@ command:
   # Distro packages and base utilities
   env HOME=/tmp jq --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp yq --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp rsync --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp git --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp ssh -V: {exit-status: 0, timeout: 60000}
   env HOME=/tmp ssh-keygen -t ed25519 -N "" -f /tmp/goss-ssh-key -q: {exit-status: 0, timeout: 60000}
