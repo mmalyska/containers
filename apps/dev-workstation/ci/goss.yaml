@@ -42,7 +42,10 @@ command:
   diff -r /etc/skel /home/vscode: {exit-status: 0, timeout: 60000}
   test -z "$(find /usr/local /opt/mise ! -user root -print -quit)": {exit-status: 0, timeout: 60000}
   test -z "$(find /usr/local/bin -xtype l -print -quit)": {exit-status: 0, timeout: 60000}
-  for t in sudo krew kubectl-krew brew dotnet sops nc netcat wget puttygen sshd gpg wg gcc cc make; do if command -v "$t"; then exit 1; fi; done: {exit-status: 0, timeout: 60000}
+  for t in sudo krew kubectl-krew brew dotnet sops nc netcat wget puttygen gpg wg gcc cc make; do if command -v "$t"; then exit 1; fi; done: {exit-status: 0, timeout: 60000}
+  # sshd is installed but never started by the image; a workspace template starts it as vscode on an unprivileged port.
+  test -x /usr/sbin/sshd: {exit-status: 0, timeout: 60000}
+  test ! -e /etc/ssh/ssh_host_ed25519_key: {exit-status: 0, timeout: 60000}
   locale -a | grep -qx en_US.utf8: {exit-status: 0, timeout: 60000}
   git config --system pull.rebase: {exit-status: 0, stdout: ["true"], timeout: 60000}
   grep -qF 'direnv hook bash' /etc/bash.bashrc: {exit-status: 0, timeout: 60000}

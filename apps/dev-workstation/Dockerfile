@@ -26,9 +26,11 @@ RUN apt-get update \
       locales \
       nano \
       openssh-client \
+      openssh-server \
       ripgrep \
       unzip \
       vim \
+    && rm -f /etc/ssh/ssh_host_* \
     && locale-gen en_US.UTF-8 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
