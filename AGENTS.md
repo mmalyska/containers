@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides context for Claude Code when working in this repository.
+This file provides context for AI coding agents (Claude Code, Codex, and others) working in this repository.
 
 ## Project Overview
 
@@ -167,7 +167,7 @@ job per platform: `ubuntu-latest` for `linux/amd64`, `ubuntu-24.04-arm` for `lin
 ## Security
 
 **Never store secrets, credentials, tokens, API keys, or other sensitive data in:**
-- This file (`CLAUDE.md`)
+- This file (`AGENTS.md`)
 - Memory files (`.claude/MEMORY.md`)
 - Any committed file in this repository
 - GitHub Actions workflow files (use GitHub Secrets instead)
