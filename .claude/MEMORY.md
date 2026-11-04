@@ -17,7 +17,7 @@ to GHCR (`ghcr.io/mmalyska/*`). Forked from onedr0p/containers.
 
 ## Key File Paths
 
-- `CLAUDE.md` — Full Claude Code context (commands, conventions, CI/CD overview)
+- `AGENTS.md` — Full agent context (commands, conventions, CI/CD overview)
 - `metadata.rules.cue` — CUE schema validating all `apps/*/metadata.json` files
 - `Taskfile.yml` — Local dev task runner
 - `.github/workflows/` — CI/CD pipelines (release-schedule, image-rebuild, pr-validate, etc.)
