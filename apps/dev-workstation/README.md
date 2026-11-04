@@ -22,6 +22,9 @@ and `mise install`. These go to the home volume, and a repository's versions tak
 the image's in interactive shells. Scripts get them through `mise exec`. `apt` packages have to be
 added to the image.
 
+`openssh-server` is installed so that a workspace can run `sshd` as `vscode` on an unprivileged port (the
+`agent-workspace` template does; the image never starts it and ships no host keys).
+
 The user is `vscode`, UID 1000. The mise and direnv hooks are in
 `/etc/bash.bashrc` and the git defaults in `/etc/gitconfig`. Claude Code's auto-updater is
 off, since `/opt/mise` is not writable: update the image instead.
