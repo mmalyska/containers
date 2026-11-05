@@ -1,12 +1,18 @@
 {
-  "name": "Container",
-  "build": {
-      "dockerfile": "Dockerfile"
-  },
+  "name": "containers",
+  // The shared dev-workstation image (built here, apps/dev-workstation) provides task, cue, go and goss.
+  "image": "ghcr.io/mmalyska/dev-workstation:1.0.0@sha256:71335a56b4a6dd99f9105da136395963f24fd40f4832a0ce4d54e46b725e6fb5",
+  // Docker-in-Docker lets `task test` (docker buildx and dgoss) run inside the container.
   "features": {
-    "ghcr.io/devcontainers/features/go:1": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:4": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "true"
+    }
   },
+  // The image runs as vscode and has no sudo, but the docker-in-docker entrypoint must start dockerd as root.
+  // The container starts as root; VS Code, terminals and lifecycle commands still run as vscode.
+  "containerUser": "root",
   "remoteUser": "vscode",
-  "containerUser": "vscode",
   "postCreateCommand": "mkdir -p /home/vscode/.claude/projects/-workspaces-containers && ln -sfn /workspaces/containers/.claude /home/vscode/.claude/projects/-workspaces-containers/memory"
 }
