@@ -84,5 +84,17 @@
       ],
       groupName: 'goss',
     },
+    {
+      description: 'mise conda: tools come from conda-forge, and the Anaconda API needs the channel in the URL',
+      matchManagers: [
+        'mise',
+      ],
+      matchDatasources: [
+        'conda',
+      ],
+      registryUrls: [
+        'https://api.anaconda.org/package/conda-forge',
+      ],
+    },
   ],
 }
