@@ -2,8 +2,6 @@
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
     'github>mmalyska/renovate-config',
-    'github>mmalyska/renovate-config:automerge-github-actions',
-    'github>mmalyska/renovate-config:automerge-docker-digest',
   ],
   gitAuthor: 'bendo-bot <126472327+bendo-bot[bot]@users.noreply.github.com>',
   customManagers: [
@@ -22,12 +20,10 @@
   ],
   packageRules: [
     {
-      description: 'Auto merge patch updates',
+      description: 'Wait 3 days before patch updates',
       matchUpdateTypes: [
         'patch',
       ],
-      automerge: true,
-      automergeType: 'pr',
       minimumReleaseAge: '3 days',
     },
     {
@@ -38,7 +34,6 @@
         'digest',
       ],
       commitMessagePrefix: '📣 ',
-      automergeType: 'pr',
     },
     {
       matchDatasources: [
