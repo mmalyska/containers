@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
-version="$(curl -sX GET "https://api.github.com/repos/azerothcore/azerothcore-wotlk/commits?per_page=1&sha=master" 2>/dev/null \
-  | jq -r '.[0].sha')"
-printf "%s" "${version}"
+# Version = the azerothcore-wotlk commit pinned in the Dockerfile. Renovate bumps
+# it (with the module SHAs and base digest) once a week, so this only changes
+# when that PR is merged instead of on every upstream master commit.
+set -euo pipefail
+dir="$(dirname "$0")"
+sed -n 's/^ARG AZEROTHCORE_SHA=\([0-9a-f]\{40\}\)$/\1/p' "${dir}/../Dockerfile" | tr -d '\n'

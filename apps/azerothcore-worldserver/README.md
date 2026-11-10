@@ -46,9 +46,13 @@ image: ghcr.io/mmalyska/azerothcore-worldserver:rolling@sha256:<digest>
 
 ## Version Tracking
 
-`ci/latest.sh` queries the latest commit date from `azerothcore/azerothcore-wotlk`. The image
-rebuilds hourly when a new commit is detected. The built binary reflects the pinned commit SHAs
-in the Dockerfile, not necessarily the very latest upstream commit.
+AzerothCore has no release tags and commits to `master` many times a day, so nothing tracks
+upstream directly. The `azerothcore-wotlk` commit (`AZEROTHCORE_SHA`), the module SHAs and the
+base image digest are all pinned in the Dockerfile. Renovate bumps them together in one
+"azerothcore wow images" PR, opened Monday mornings.
+
+`ci/latest.sh` returns the pinned `AZEROTHCORE_SHA`, so the image is rebuilt and tagged with a
+new version only when that PR is merged.
 
 ---
 
