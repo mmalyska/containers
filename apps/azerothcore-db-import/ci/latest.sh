@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Version = digest of the acore/ac-wotlk-db-import base image pinned in the
-# Dockerfile. Renovate bumps it once a week, so this only changes when that PR
-# is merged instead of on every upstream master commit.
+# All azerothcore images are released together as one WoW server version: the
+# azerothcore-wotlk commit pinned in the worldserver Dockerfile. Renovate bumps
+# it (with every base digest and module SHA) in one weekly PR, so this only
+# changes when that PR is merged.
 set -euo pipefail
 dir="$(dirname "$0")"
-sed -n 's|^FROM acore/ac-wotlk-db-import:master@sha256:\([0-9a-f]\{64\}\).*|\1|p' "${dir}/../Dockerfile" | tr -d '\n'
+sed -n 's/^ARG AZEROTHCORE_SHA=\([0-9a-f]\{40\}\)$/\1/p' "${dir}/../../azerothcore-worldserver/Dockerfile" | tr -d '\n'

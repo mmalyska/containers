@@ -1,0 +1,18 @@
+{
+  "app": "azerothcore-client-data",
+  "base": false,
+  "channels": [
+    {
+      "name": "stable",
+      "description": "AzerothCore WotLK client data downloader",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "stable": true,
+      "tests": {
+        "enabled": false,
+        "type": "cli"
+      }
+    }
+  ]
+}

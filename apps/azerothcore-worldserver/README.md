@@ -51,8 +51,10 @@ upstream directly. The `azerothcore-wotlk` commit (`AZEROTHCORE_SHA`), the modul
 base image digest are all pinned in the Dockerfile. Renovate bumps them together in one
 "azerothcore wow images" PR, opened Monday mornings.
 
-`ci/latest.sh` returns the pinned `AZEROTHCORE_SHA`, so the image is rebuilt and tagged with a
-new version only when that PR is merged.
+All four azerothcore images (`authserver`, `client-data`, `db-import`, `worldserver`) are
+released together as one WoW server version. Each `ci/latest.sh` returns the `AZEROTHCORE_SHA`
+pinned in this Dockerfile, so every image gets a new version tag (that SHA) only when the
+weekly PR is merged.
 
 ---
 
