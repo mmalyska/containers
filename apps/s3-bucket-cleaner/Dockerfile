@@ -1,5 +1,5 @@
 ARG VERSION
-FROM public.ecr.aws/aws-cli/aws-cli:$VERSION
+FROM docker.io/amazon/aws-cli:$VERSION
 
 # Install jq
 RUN yum update -y \

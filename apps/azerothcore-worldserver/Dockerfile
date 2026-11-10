@@ -1,7 +1,7 @@
 FROM acore/ac-wotlk-worldserver:master@sha256:2795fd92311057a80d9b5eca6aee3e3e2994110a86891abb40832fe94913db83 AS builder
 
-ARG VERSION
-
+# renovate: datasource=git-refs depName=https://github.com/azerothcore/azerothcore-wotlk
+ARG AZEROTHCORE_SHA=f3d72dfd302b3b2281aa54dcb0b2c700f72d8453
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-solocraft
 ARG MOD_SOLOCRAFT_SHA=59588838988d1b74111d26670d99d0e649014b93
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-ah-bot
@@ -22,11 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /azerothcore-src
 
-# Main repo version injected via VERSION build arg (set by ci/latest.sh).
-# Module SHAs managed via ARG above — updated by Renovate.
+# Main repo and module SHAs pinned via ARG above — updated weekly by Renovate.
 RUN git init . \
  && git remote add origin https://github.com/azerothcore/azerothcore-wotlk \
- && git fetch --depth 1 origin ${VERSION} \
+ && git fetch --depth 1 origin ${AZEROTHCORE_SHA} \
  && git checkout FETCH_HEAD \
  && git init modules/mod-solocraft \
  && git -C modules/mod-solocraft remote add origin https://github.com/azerothcore/mod-solocraft \

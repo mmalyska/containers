@@ -36,24 +36,13 @@
       commitMessagePrefix: '📣 ',
     },
     {
-      matchDatasources: [
-        'docker',
-      ],
-      matchUpdateTypes: [
-        'digest',
+      description: 'azerothcore has no release tags and commits to master many times a day, so pin everything (base digests, azerothcore-wotlk and module SHAs) and bump it together once a week',
+      matchFileNames: [
+        'apps/azerothcore-*/**',
       ],
       groupName: 'azerothcore wow images',
-      matchPackageNames: [
-        '/^acore/ac-wotlk-/',
-      ],
-    },
-    {
-      matchDatasources: [
-        'git-refs',
-      ],
-      groupName: 'azerothcore wow images',
-      matchPackageNames: [
-        '/azerothcore/mod-/',
+      schedule: [
+        'before 6am on monday',
       ],
     },
     {
