@@ -124,11 +124,13 @@ if [[ "${found}" == true ]]; then
   exit 0
 fi
 
-# The image's previous release: the newest one titled "<image> <version>".
-previous=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 1000 --json tagName,name,createdAt |
+# The image's previous release: the last published one titled "<image> <version>".
+# Sorted by publishedAt: a release's createdAt is the date of its commit, so two
+# versions released from one commit would tie.
+previous=$(gh release list --repo "${GITHUB_REPOSITORY}" --limit 1000 --json tagName,name,publishedAt |
   jq --compact-output --arg prefix "${IMAGE_NAME} " --arg tag "${tag}" '
     [.[] | select((.name | startswith($prefix)) and .tagName != $tag)]
-    | sort_by(.createdAt) | last // empty')
+    | sort_by(.publishedAt) | last // empty')
 previous_version=""
 previous_sha=""
 if [[ -n "${previous}" ]]; then
