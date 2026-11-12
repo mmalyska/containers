@@ -1,6 +1,10 @@
 {
   "app": "llama-cpp-jetson",
   "base": false,
+  "upstream": {
+    "releaseNotes": "https://github.com/ggml-org/llama.cpp/releases/tag/{version}",
+    "compare": "https://github.com/ggml-org/llama.cpp/compare/{previousVersion}...{version}"
+  },
   "channels": [
     {
       "name": "stable",

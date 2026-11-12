@@ -1,6 +1,10 @@
 {
   "app": "s3-bucket-cleaner",
   "base": false,
+  "upstream": {
+    "releaseNotes": "https://github.com/aws/aws-cli/blob/{version}/CHANGELOG.rst",
+    "compare": "https://github.com/aws/aws-cli/compare/{previousVersion}...{version}"
+  },
   "channels": [
     {
       "name": "stable",

@@ -1,6 +1,10 @@
 {
   "app": "nextcloud",
   "base": false,
+  "upstream": {
+    "releaseNotes": "https://github.com/nextcloud/server/releases/tag/v{version}",
+    "compare": "https://github.com/nextcloud/server/compare/v{previousVersion}...v{version}"
+  },
   "channels": [
     {
       "name": "stable",
