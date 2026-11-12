@@ -1,6 +1,10 @@
 {
   "app": "azerothcore-worldserver",
   "base": false,
+  "upstream": {
+    "releaseNotes": "https://github.com/azerothcore/azerothcore-wotlk/commit/{version}",
+    "compare": "https://github.com/azerothcore/azerothcore-wotlk/compare/{previousVersion}...{version}"
+  },
   "channels": [
     {
       "name": "stable",

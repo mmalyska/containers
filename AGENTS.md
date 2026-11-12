@@ -85,6 +85,18 @@ task
 - `base`: set `true` only for base images (affects tag generation)
 - `stable`: affects tag naming — stable channels omit the channel name from the tag
 - `tests.type`: `"cli"` (run with `tail -f /dev/null`) or `"web"` (service stays running)
+- `upstream` (optional): where the upstream project says what changed in a version, for apps
+  whose version follows an upstream one. `releaseNotes` is required in it, `compare` optional;
+  both are `https://` URL templates where `{version}` is the image version and
+  `{previousVersion}` the version of the image's previous release. Omit it for apps with no
+  upstream. See [Release notes](#release-notes).
+
+  ```json
+  "upstream": {
+    "releaseNotes": "https://github.com/aws/aws-cli/blob/{version}/CHANGELOG.rst",
+    "compare": "https://github.com/aws/aws-cli/compare/{previousVersion}...{version}"
+  }
+  ```
 
 ## Version Tracking Flow
 
@@ -156,6 +168,34 @@ job per platform: `ubuntu-latest` for `linux/amd64`, `ubuntu-24.04-arm` for `lin
   images already pushed stay in GHCR, untagged. Other apps are not affected.
 - **Without a push** (PRs): each platform builds and runs Goss, and `merge-manifests` is skipped,
   so the merge is only exercised by a real push.
+- **Labels**: the "Setup workflow Variables" step builds the image labels and writes them to the
+  job summary, so a PR run shows the labels a release would get.
+
+## Release notes
+
+Every pushed image version gets a GitHub release in this repository, so Renovate PRs that
+update a `ghcr.io/mmalyska/*` image show release notes:
+
+- Every image carries `org.opencontainers.image.source` (this repository) and
+  `org.opencontainers.image.revision` (the commit it was built from). Renovate reads them from
+  the newest stable tag to find the repository
+  ([docker datasource docs](https://docs.renovatebot.com/modules/datasource/docker/)).
+  Base images also carry them without the `.base` prefix, because Renovate reads only those.
+- The `publish-releases` job of `action-image-build.yaml` runs
+  `.github/scripts/publish-release.sh` for each image of a push build. It publishes the release
+  `<imageName> <version>`, tagged `<imageName>-<version>` at the built commit, which is the tag
+  form Renovate matches to the image version. The release links the upstream notes (from
+  `upstream` in `metadata.json`) and lists the commits to `apps/<app>/` since the image's
+  previous release.
+- A rebuild of a version that already has a release appends its commits to that release. The
+  git tag is not moved.
+- The release is published only if the pushed `<image>:<version>` carries the run's commit as
+  its revision, so a failed image gets no release.
+- `<!-- built-from: <sha> -->` markers in a release body record the commits it covers. Keep
+  them when editing a release by hand: the next build starts its commit list from the last one.
+- Try it without publishing: `DRY_RUN=true GITHUB_REPOSITORY=mmalyska/containers APP=<app>
+  IMAGE_NAME=<image> VERSION=<version> IMAGE=ghcr.io/mmalyska/<image> SHA=$(git rev-parse HEAD)
+  RUN_URL=<any> ./.github/scripts/publish-release.sh` (needs `gh` signed in).
 
 ## Tag Generation
 

@@ -50,6 +50,7 @@ jobs:
     outputs:
       matrix: ${{ steps.enrich.outputs.matrix }}
       mergeMatrix: ${{ steps.enrich.outputs.mergeMatrix }}
+      releaseMatrix: ${{ steps.enrich.outputs.releaseMatrix }}
       buildDate: ${{ steps.enrich.outputs.buildDate }}
     steps:
       - uses: actions/checkout@v7.0.1
@@ -64,6 +65,7 @@ jobs:
         run: |-
           rows=()
           merge_rows=()
+          release_rows=()
           while IFS= read -r row; do
             app=$(jq --raw-output '.app' <<< "${row}")
             channel=$(jq --raw-output '.channel' <<< "${row}")
@@ -92,6 +94,9 @@ jobs:
                 multiPlatform: ($platforms | length > 1)
               }' <<< "${row}")")
 
+            release_rows+=("$(jq --compact-output --arg imageName "${image_name}" \
+              '. + {imageName: $imageName}' <<< "${row}")")
+
             if [[ "$(jq 'length' <<< "${platforms}")" -gt 1 ]]; then
               merge_rows+=("$(jq --compact-output --arg imageName "${image_name}" --argjson platforms "${platforms}" \
                 '. + {imageName: $imageName, platforms: $platforms}' <<< "${row}")")
@@ -100,9 +105,11 @@ jobs:
 
           matrix=$(printf '%s\n' "${rows[@]}" | jq --slurp --compact-output '.')
           merge_matrix=$(printf '%s\n' "${merge_rows[@]}" | jq --slurp --compact-output '.')
+          release_matrix=$(printf '%s\n' "${release_rows[@]}" | jq --slurp --compact-output '.')
           {
             echo "matrix=${matrix}"
             echo "mergeMatrix=${merge_matrix}"
+            echo "releaseMatrix=${release_matrix}"
             echo "buildDate=$(date --rfc-3339=seconds --utc)"
           } >> $GITHUB_OUTPUT
 
@@ -139,10 +146,45 @@ jobs:
           fi
 
           if [[ "${container_base}" == true ]]; then
-            echo "chan_label_type=org.opencontainers.image.base" >> $GITHUB_OUTPUT
+            label_type=org.opencontainers.image.base
           else
-            echo "chan_label_type=org.opencontainers.image" >> $GITHUB_OUTPUT
+            label_type=org.opencontainers.image
           fi
+
+          # One `key=value` per line, unquoted: build-push-action keeps quotes
+          # as part of the value.
+          repo_url="${{ github.server_url }}/${{ github.repository }}"
+          labels=$(cat <<EOF
+          ${label_type}.created=${{ needs.prepare-matrix.outputs.buildDate }}
+          ${label_type}.title=${{ matrix.image.app }} (${{ matrix.image.channel }})
+          ${label_type}.version=${{ matrix.image.version }}
+          ${label_type}.authors=Michał Małyska
+          ${label_type}.description=${chan_description}
+          ${label_type}.url=${repo_url}/tree/main/apps/${{ matrix.image.app }}
+          ${label_type}.build.url=${repo_url}/actions/runs/${{ github.run_id }}
+          ${label_type}.documentation=${repo_url}/blob/main/apps/${{ matrix.image.app }}/README.md
+          ${label_type}.source=${repo_url}
+          ${label_type}.revision=${{ github.sha }}
+          EOF
+          )
+          # Renovate reads only the plain source and revision labels, to find
+          # this repository and the image's releases in it. A base image sets
+          # them too, else it would carry those of the image it is built from.
+          if [[ "${container_base}" == true ]]; then
+            labels+=$'\n'"org.opencontainers.image.source=${repo_url}"
+            labels+=$'\n'"org.opencontainers.image.revision=${{ github.sha }}"
+          fi
+          {
+            echo "chan_labels<<EOF"
+            sed 's/^ *//' <<< "${labels}"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+          {
+            echo "### Labels of ${{ matrix.image.imageName }} (${{ matrix.image.platform }})"
+            echo '```'
+            sed 's/^ *//' <<< "${labels}"
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY
 
           if test -f "./apps/${{ matrix.image.app }}/${{ matrix.image.channel }}/Dockerfile"; then
             echo "chan_dockerfile=./apps/${{ matrix.image.app }}/${{ matrix.image.channel }}/Dockerfile" >> $GITHUB_OUTPUT
@@ -262,16 +304,7 @@ jobs:
           build-args: |-
             VERSION=${{ matrix.image.version }}
             CHANNEL=${{ matrix.image.channel }}
-          labels: |-
-            ${{ steps.vars.outputs.chan_label_type }}.created="${{ needs.prepare-matrix.outputs.buildDate }}"
-            ${{ steps.vars.outputs.chan_label_type }}.title="${{ matrix.image.app }} (${{ matrix.image.channel }})"
-            ${{ steps.vars.outputs.chan_label_type }}.version="${{ matrix.image.version }}"
-            ${{ steps.vars.outputs.chan_label_type }}.authors="Michał Małyska"
-            ${{ steps.vars.outputs.chan_label_type }}.description="${{ steps.vars.outputs.chan_description }}"
-            ${{ steps.vars.outputs.chan_label_type }}.url="https://github.com/mmalyska/containers/apps/${{ matrix.image.app }}"
-            ${{ steps.vars.outputs.chan_label_type }}.build.url="https://github.com/mmalyska/containers/actions/runs/${{ github.run_id }}"
-            ${{ steps.vars.outputs.chan_label_type }}.documentation="https://github.com/mmalyska/containers/blob/main/apps/${{ matrix.image.app }}/README.md"
-            ${{ steps.vars.outputs.chan_label_type }}.revision="${{ github.sha }}"
+          labels: ${{ steps.vars.outputs.chan_labels }}
           context: .
           platforms: ${{ matrix.image.platform }}
           file: ${{ steps.vars.outputs.chan_dockerfile }}
@@ -422,6 +455,51 @@ jobs:
           color: ${{ steps.merge-failed.outputs.color }}
           username: GitHub Actions
 
+  # Publishes a GitHub release per pushed image version, tagged
+  # `<imageName>-<version>`: Renovate finds it through the image's
+  # `org.opencontainers.image.source` label and shows it as the release notes
+  # of the version. Runs for every image of the build and publishes only those
+  # whose pushed tag carries this commit, so one image's failure does not hold
+  # back the others' releases. See .github/scripts/publish-release.sh.
+  publish-releases:
+    name: Publish release (${{ matrix.image.imageName }})
+    needs: ["prepare-matrix", "build-and-test", "merge-manifests"]
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && inputs.pushImages == 'true' && needs.prepare-matrix.result == 'success' }}
+    permissions:
+      contents: write
+      packages: read
+    strategy:
+      matrix:
+        image: ["${{ fromJson(needs.prepare-matrix.outputs.releaseMatrix) }}"]
+      fail-fast: false
+      # One at a time: each release looks up the ones before it.
+      max-parallel: 1
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          # The release lists the commits since the image's previous release.
+          fetch-depth: 0
+
+      - name: Setup GHCR
+        uses: docker/login-action@v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP: ${{ matrix.image.app }}
+          IMAGE_NAME: ${{ matrix.image.imageName }}
+          VERSION: ${{ matrix.image.version }}
+          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.image.imageName }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: ./.github/scripts/publish-release.sh
+
   # Summarize matrix https://github.community/t/status-check-for-a-matrix-jobs/127354/7
   build_success:
     name: Build matrix success
@@ -429,8 +507,9 @@ jobs:
     needs:
       - build-and-test
       - merge-manifests
+      - publish-releases
     if: ${{ always() }}
     steps:
       - name: Check build matrix status
-        if: ${{ (inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]') && (needs.build-and-test.result != 'success' || (needs.merge-manifests.result != 'success' && needs.merge-manifests.result != 'skipped')) }}
+        if: ${{ (inputs.imagesToBuild != '' && inputs.imagesToBuild != '[]') && (needs.build-and-test.result != 'success' || (needs.merge-manifests.result != 'success' && needs.merge-manifests.result != 'skipped') || (needs.publish-releases.result != 'success' && needs.publish-releases.result != 'skipped')) }}
         run: exit 1

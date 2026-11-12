@@ -1,6 +1,9 @@
 {
   "app": "vintagestory",
   "base": false,
+  "upstream": {
+    "releaseNotes": "https://wiki.vintagestory.at/{version}"
+  },
   "channels": [
     {
       "name": "stable",
