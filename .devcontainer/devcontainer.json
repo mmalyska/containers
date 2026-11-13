@@ -1,7 +1,7 @@
 {
   "name": "containers",
   // The shared dev-workstation image (built here, apps/dev-workstation) provides task, cue, go and goss.
-  "image": "ghcr.io/mmalyska/dev-workstation:1.0.0@sha256:3cbc2aa85c825d33fe330bcd05db35d115d9aff4df9b29bee0a7ff3d1cef33ea",
+  "image": "ghcr.io/mmalyska/dev-workstation:1.0.0@sha256:0493a2f2b3da7f7a3bea67d210b59f9447575c07e50e4d8621abc87f3d0cb332",
   // Docker-in-Docker lets `task test` (docker buildx and dgoss) run inside the container.
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:4": {
