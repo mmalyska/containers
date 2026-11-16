@@ -1,4 +1,4 @@
-FROM ghcr.io/mmalyska/sandbox-base:rolling@sha256:5c7683152757cccd90c6102f910219d2973e4fc124b0fd8c2049d13cf50e10f0
+FROM ghcr.io/mmalyska/sandbox-base:rolling@sha256:cb3025f498690decf1c659c4f2c4dec14991832427cf5e6317dfbf265f92057d
 
 ARG VERSION
 ARG CHANNEL
