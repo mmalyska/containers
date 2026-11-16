@@ -1,7 +1,7 @@
-FROM acore/ac-wotlk-worldserver:master@sha256:45a805ebdfa75d09785ee6893f5f44502b3464c36f9ac2b0a16b577535f599b3 AS builder
+FROM acore/ac-wotlk-worldserver:master@sha256:24f43ba449f64d432a35d7fc583017ff880e666e64777f8432e9e6e95eb3e1eb AS builder
 
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/azerothcore-wotlk
-ARG AZEROTHCORE_SHA=0ebbf6f89986b22dc6255c49e1633a718c7199a0
+ARG AZEROTHCORE_SHA=17f9f9d5003708136c798ab4ef8c1b9762251bad
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-solocraft
 ARG MOD_SOLOCRAFT_SHA=59588838988d1b74111d26670d99d0e649014b93
 # renovate: datasource=git-refs depName=https://github.com/azerothcore/mod-ah-bot
@@ -58,7 +58,7 @@ RUN cmake -B cmake-build \
 
 RUN for f in /azerothcore/env/dist/etc/modules/*.conf.dist; do cp "$f" "${f%.dist}"; done
 
-FROM acore/ac-wotlk-worldserver:master@sha256:45a805ebdfa75d09785ee6893f5f44502b3464c36f9ac2b0a16b577535f599b3
+FROM acore/ac-wotlk-worldserver:master@sha256:24f43ba449f64d432a35d7fc583017ff880e666e64777f8432e9e6e95eb3e1eb
 
 # Add runtime deps introduced by the Ubuntu 22.04 → 24.04 upgrade in the base image.
 # Mirrors what upstream added in azerothcore-wotlk PR #24459.
