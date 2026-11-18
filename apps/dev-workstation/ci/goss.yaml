@@ -76,6 +76,8 @@ command:
   env HOME=/tmp terraform version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp age --version: {exit-status: 0, timeout: 60000}
   env HOME=/tmp age-keygen --version: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp kubeconform -v: {exit-status: 0, timeout: 60000}
+  env HOME=/tmp promtool --version: {exit-status: 0, timeout: 60000}
 
   # Secrets, AI and workspace CLIs
   env HOME=/tmp bws --version: {exit-status: 0, timeout: 60000}
