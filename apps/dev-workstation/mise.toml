@@ -24,7 +24,7 @@ promtool = "3.16.0"
 
 # Secrets, AI and workspace
 bitwarden-secrets-manager = "2.1.0"
-coder = "2.39.3"
+coder = "2.39.4"
 codex = "0.166.0"
 claude = "2.1.325"
 chezmoi = "2.74.1"
