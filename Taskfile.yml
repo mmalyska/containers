@@ -44,12 +44,12 @@ tasks:
     silent: true
     vars:
       # renovate: datasource=github-tags depName=goss-org/goss
-      GOSS_VERSION: v0.3.21
+      GOSS_VERSION: v0.4.10
     cmds:
       - mkdir -p ./.goss
-      - curl -fsSL -o ./.goss/goss https://github.com/aelsabbahy/goss/releases/download/{{.GOSS_VERSION}}/goss-linux-amd64
+      - curl -fsSL https://github.com/goss-org/goss/releases/download/{{.GOSS_VERSION}}/goss_{{trimPrefix "v" .GOSS_VERSION}}_linux_{{if eq ARCH "arm64"}}arm64{{else}}x86_64{{end}}.tar.gz | tar -xz -C ./.goss goss
       - chmod +x ./.goss/goss
-      - curl -fsSL -o ./.goss/dgoss https://raw.githubusercontent.com/aelsabbahy/goss/{{.GOSS_VERSION}}/extras/dgoss/dgoss
+      - curl -fsSL -o ./.goss/dgoss https://github.com/goss-org/goss/releases/download/{{.GOSS_VERSION}}/dgoss
       - chmod +x ./.goss/dgoss
     status:
       - test -f ./.goss/goss
