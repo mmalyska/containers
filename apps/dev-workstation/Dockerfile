@@ -1,6 +1,6 @@
 # apt provides the OS and mise.toml lists every tool. Nothing goes under
 # /home/vscode: the workspace mounts a volume over the home directory.
-FROM ubuntu:24.04@sha256:73b999393d07f2bf65a40373778a44dc9a6d54ad7718d29247d8ff9413c4d6a8
+FROM ubuntu:26.04@sha256:d66b366dac61b575bee2aef07e9c26e8070096fbe84a3d4d3eb0da069b5d76db
 ARG VERSION
 ARG CHANNEL
 # renovate: datasource=github-releases depName=jdx/mise
