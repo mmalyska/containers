@@ -225,10 +225,32 @@ jobs:
 
       - name: Setup Goss
         if: ${{ steps.vars.outputs.chan_tests_enabled == 'true' }}
-        uses: e1himself/goss-installation-action@v1.3.0
-        with:
+        shell: bash
+        env:
           # renovate: datasource=github-tags depName=goss-org/goss
-          version: v0.4.10
+          GOSS_VERSION: v0.4.10
+        # goss >= 0.4.10 publishes GoReleaser tarballs (goss_<v>_linux_<arch>.tar.gz)
+        # and one SHA256SUMS file instead of raw goss-linux-<arch> binaries.
+        run: |
+          case "$(uname -m)" in
+            x86_64) arch=x86_64 ;;
+            aarch64|arm64) arch=arm64 ;;
+            *) echo "::error::Unsupported architecture $(uname -m)"; exit 1 ;;
+          esac
+          version="${GOSS_VERSION#v}"
+          tarball="goss_${version}_linux_${arch}.tar.gz"
+          base="https://github.com/goss-org/goss/releases/download/${GOSS_VERSION}"
+          dir="${RUNNER_TEMP}/goss"
+          mkdir -p "$dir" && cd "$dir"
+          curl -fsSLO "${base}/${tarball}"
+          curl -fsSL "${base}/goss_${version}_SHA256SUMS" | grep " ${tarball}\$" | sha256sum -c -
+          tar -xzf "$tarball" goss
+          curl -fsSL -o dgoss "${base}/dgoss"
+          curl -fsSL "${base}/dgoss.sha256" | awk '{print $1"  dgoss"}' | sha256sum -c -
+          chmod +x goss dgoss
+          rm -f "$tarball"
+          echo "$dir" >> "$GITHUB_PATH"
+          ./goss --version
 
       - name: Validate image metadata
         shell: bash
