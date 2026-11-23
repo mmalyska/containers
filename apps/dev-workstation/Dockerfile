@@ -4,7 +4,7 @@ FROM ubuntu:26.04@sha256:d66b366dac61b575bee2aef07e9c26e8070096fbe84a3d4d3eb0da0
 ARG VERSION
 ARG CHANNEL
 # renovate: datasource=github-releases depName=jdx/mise
-ARG MISE_VERSION=v2026.11.8
+ARG MISE_VERSION=v2026.11.10
 
 LABEL devcontainer.metadata='[{"remoteUser":"vscode","containerUser":"vscode","mounts":["source=dev-workstation-cache,target=/cache,type=volume"]}]'
 
